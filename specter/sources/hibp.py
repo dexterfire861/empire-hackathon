@@ -43,8 +43,15 @@ class HIBPSource(BaseSource):
             "user-agent": "Specter-Scanner",
         }
 
-        async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
-            resp = await client.get(url, headers=headers, params={"truncateResponse": "false"})
+        try:
+            async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
+                resp = await client.get(
+                    url,
+                    headers=headers,
+                    params={"truncateResponse": "false"},
+                )
+        except (httpx.HTTPError, httpx.TimeoutException):
+            return []
 
         if resp.status_code == 404:
             return []  # no breaches
@@ -62,9 +69,14 @@ class HIBPSource(BaseSource):
                     severity="info",
                 )
             ]
-        resp.raise_for_status()
+        if resp.status_code != 200:
+            return []
 
-        breaches = resp.json()
+        try:
+            breaches = resp.json()
+        except ValueError:
+            return []
+
         findings: list[Finding] = []
 
         for breach in breaches:

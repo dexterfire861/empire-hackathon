@@ -34,13 +34,20 @@ class CrtshSource(BaseSource):
         query = input_value.strip()
         url = f"https://crt.sh/?q={query}&output=json"
 
-        async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
-            resp = await client.get(url)
+        try:
+            async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
+                resp = await client.get(url)
+        except (httpx.HTTPError, httpx.TimeoutException):
+            return []
 
         if resp.status_code != 200:
             return []
 
-        certs = resp.json()
+        try:
+            certs = resp.json()
+        except ValueError:
+            return []
+
         if not certs:
             return []
 

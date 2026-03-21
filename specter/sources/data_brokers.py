@@ -36,13 +36,6 @@ DATA_BROKER_SITES = [
         "data_types": ["name", "phone", "address", "relatives", "email"],
     },
     {
-        "name": "TruePeopleSearch",
-        "search_url": "https://www.truepeoplesearch.com/results?name={name_raw}",
-        "opt_out": "https://www.truepeoplesearch.com/removal",
-        "description": "Free people search with address history, phone numbers, and associated people",
-        "data_types": ["name", "phone", "address", "relatives"],
-    },
-    {
         "name": "BeenVerified",
         "search_url": "https://www.beenverified.com/people/{name}/",
         "opt_out": "https://www.beenverified.com/app/optout/search",
@@ -62,41 +55,6 @@ DATA_BROKER_SITES = [
         "opt_out": "https://www.intelius.com/opt-out",
         "description": "Background check and people search with comprehensive public records",
         "data_types": ["name", "phone", "address", "criminal_records", "relatives"],
-    },
-    {
-        "name": "ThatsThem",
-        "search_url": "https://thatsthem.com/name/{name_raw}",
-        "opt_out": "https://thatsthem.com/optout",
-        "description": "Free people search with IP addresses, emails, and phone numbers",
-        "data_types": ["name", "phone", "address", "email", "ip_address"],
-    },
-    {
-        "name": "PeopleFinder",
-        "search_url": "https://www.peoplefinder.com/results?name={name_raw}",
-        "opt_out": "https://www.peoplefinder.com/optout.php",
-        "description": "People finder with age, address, phone, and relatives data",
-        "data_types": ["name", "phone", "address", "relatives", "age"],
-    },
-    {
-        "name": "USSearch",
-        "search_url": "https://www.ussearch.com/results?name={name_raw}",
-        "opt_out": "https://www.ussearch.com/privacylock",
-        "description": "People search and background check service",
-        "data_types": ["name", "phone", "address", "criminal_records"],
-    },
-    {
-        "name": "Pipl",
-        "search_url": "https://pipl.com/search/?q={name_raw}",
-        "opt_out": "https://pipl.com/personal-information-removal-request",
-        "description": "Deep web people search connecting online and offline identities",
-        "data_types": ["name", "email", "phone", "social_profiles", "employment"],
-    },
-    {
-        "name": "Instant Checkmate",
-        "search_url": "https://www.instantcheckmate.com/people/{name}/",
-        "opt_out": "https://www.instantcheckmate.com/opt-out/",
-        "description": "Background check service with criminal records and contact info",
-        "data_types": ["name", "phone", "address", "criminal_records", "social_profiles"],
     },
 ]
 

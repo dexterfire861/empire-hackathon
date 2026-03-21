@@ -12,6 +12,9 @@ class ScanRequest(BaseModel):
     username: str | None = None
     phone: str | None = None
     location: str | None = None  # for state law routing
+    use_emailrep: bool = False
+    use_breachdirectory: bool = False
+    use_intelx: bool = False
 
     @model_validator(mode="after")
     def at_least_one_identifier(self) -> ScanRequest:
