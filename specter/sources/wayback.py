@@ -6,6 +6,8 @@ from specter.agent.schemas import Finding
 from specter.config import API_TIMEOUT
 from specter.sources.base import BaseSource, register_source
 
+WAYBACK_TIMEOUT = min(API_TIMEOUT, 5.0)
+
 
 @register_source
 class WaybackSource(BaseSource):
@@ -34,13 +36,20 @@ class WaybackSource(BaseSource):
         target = input_value.strip()
         api_url = f"https://web.archive.org/cdx/search/cdx?url={target}&output=json&limit=20"
 
-        async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
-            resp = await client.get(api_url)
+        try:
+            async with httpx.AsyncClient(timeout=WAYBACK_TIMEOUT) as client:
+                resp = await client.get(api_url)
+        except (httpx.HTTPError, httpx.TimeoutException):
+            return []
 
         if resp.status_code != 200:
             return []
 
-        rows = resp.json()
+        try:
+            rows = resp.json()
+        except ValueError:
+            return []
+
         if not rows or len(rows) < 2:
             return []
 

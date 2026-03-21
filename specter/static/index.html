@@ -169,6 +169,38 @@
     .action-text { color: #e0e0e0; }
     .action-meta { color: #666; font-size: 11px; }
 
+    .source-options {
+      margin: 16px 0 20px;
+      padding: 12px;
+      border: 1px solid #1a1a2e;
+      background: #0d0d18;
+      border-radius: 4px;
+    }
+    .source-options-title {
+      color: #6688cc;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .source-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin: 8px 0;
+      color: #ccc;
+      font-size: 13px;
+    }
+    .source-option input {
+      margin-top: 2px;
+    }
+    .source-option span {
+      color: #7c7c90;
+      font-size: 11px;
+      display: block;
+      margin-top: 2px;
+    }
+
     pre.json-block {
       background: #0d0d18;
       padding: 12px;
@@ -217,6 +249,27 @@
         <label>Location (for privacy law routing)</label>
         <input type="text" id="location" placeholder="New York">
       </div>
+    </div>
+    <div class="source-options">
+      <div class="source-options-title">Optional Limited Sources</div>
+      <label class="source-option">
+        <input type="checkbox" id="useEmailRep">
+        <div>EmailRep
+          <span>Off by default because it can rate-limit heavily.</span>
+        </div>
+      </label>
+      <label class="source-option">
+        <input type="checkbox" id="useBreachDirectory">
+        <div>BreachDirectory (RapidAPI)
+          <span>Only runs when checked and when BREACHDIRECTORY_RAPIDAPI_KEY is set.</span>
+        </div>
+      </label>
+      <label class="source-option">
+        <input type="checkbox" id="useIntelX">
+        <div>IntelX
+          <span>Only runs when checked and when INTELX_API_KEY is set.</span>
+        </div>
+      </label>
     </div>
     <button id="scanBtn" onclick="startScan()">SCAN FOR EXPOSURE</button>
 
@@ -277,6 +330,9 @@
       const username = document.getElementById('username').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const location = document.getElementById('location').value.trim();
+      const useEmailRep = document.getElementById('useEmailRep').checked;
+      const useBreachDirectory = document.getElementById('useBreachDirectory').checked;
+      const useIntelX = document.getElementById('useIntelX').checked;
 
       if (!fullName) { alert('Full name is required'); return; }
       if (!email && !username && !phone) { alert('At least one of email, username, or phone is required'); return; }
@@ -301,6 +357,9 @@
       if (username) body.username = username;
       if (phone) body.phone = phone;
       if (location) body.location = location;
+      if (useEmailRep) body.use_emailrep = true;
+      if (useBreachDirectory) body.use_breachdirectory = true;
+      if (useIntelX) body.use_intelx = true;
 
       try {
         const resp = await fetch('/scan', {

@@ -39,13 +39,20 @@ class HunterSource(BaseSource):
         url = "https://api.hunter.io/v2/email-verifier"
         params = {"email": email, "api_key": HUNTER_API_KEY}
 
-        async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
-            resp = await client.get(url, params=params)
+        try:
+            async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
+                resp = await client.get(url, params=params)
+        except (httpx.HTTPError, httpx.TimeoutException):
+            return []
 
         if resp.status_code != 200:
             return []
 
-        result = resp.json().get("data", {})
+        try:
+            result = resp.json().get("data", {})
+        except ValueError:
+            return []
+
         status = result.get("result", "unknown")
         score = result.get("score", 0)
         sources = result.get("sources", [])
