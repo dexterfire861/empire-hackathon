@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leak Prevent Settings</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell stack">
+      <div>
+        <div class="pill">Settings</div>
+        <h1>Customize Leak Prevent</h1>
+        <p class="muted">Choose your legal context and where the extension should sync its analysis.</p>
+      </div>
+
+      <form id="settingsForm" class="grid">
+        <div class="grid dual">
+          <label>
+            Home state
+            <select id="homeState">
+              <option value="CA">California</option>
+              <option value="TX">Texas</option>
+              <option value="NY">New York</option>
+              <option value="CO">Colorado</option>
+              <option value="CT">Connecticut</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </label>
+
+          <label>
+            Alert sensitivity
+            <select id="sensitivity">
+              <option value="balanced">Balanced</option>
+              <option value="strict">Strict</option>
+              <option value="minimal">Minimal</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Specter dashboard URL
+          <input class="input" id="dashboardUrl" type="url" value="http://127.0.0.1:8000" />
+        </label>
+
+        <label>
+          Your email
+          <input class="input" id="userEmail" type="email" placeholder="you@example.com" />
+        </label>
+
+        <button class="button button-primary" type="submit">Save settings</button>
+      </form>
+    </div>
+
+    <script src="./options.js"></script>
+  </body>
+</html>

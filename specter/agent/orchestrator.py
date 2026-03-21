@@ -5,6 +5,7 @@ import json
 import logging
 import time
 from datetime import datetime, timezone
+from typing import Optional
 
 import anthropic
 
@@ -450,7 +451,7 @@ class Orchestrator:
         self,
         action: str,
         result_summary: str = "",
-        new_leads: list[str] | None = None,
+        new_leads: Optional[list[str]] = None,
         reasoning: str = "",
     ) -> None:
         """Add an entry to the audit trail."""

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from typing import Optional
 
-def generate_username_permutations(full_name: str, known_usernames: list[str] | None = None) -> list[str]:
+
+def generate_username_permutations(full_name: str, known_usernames: Optional[list[str]] = None) -> list[str]:
     """
     Generate common username permutations from a full name.
     Returns deduplicated list of plausible usernames.

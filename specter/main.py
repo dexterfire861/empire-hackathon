@@ -1,25 +1,57 @@
 from __future__ import annotations
 
 import asyncio
+import io
+import json
 import logging
+import zipfile
 from contextlib import asynccontextmanager
 from pathlib import Path
+from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
+from pydantic import BaseModel, Field
 
 from specter.agent.orchestrator import Orchestrator
 from specter.agent.scan_store import ScanState, ScanStatus, ScanStore
 from specter.agent.schemas import ScanRequest
+from specter.extension_analysis import build_extension_analysis
 
 STATIC_DIR = Path(__file__).parent / "static"
+EXTENSION_DIR = Path(__file__).parent.parent / "browser_extension" / "leak-prevent"
 
 logger = logging.getLogger("specter")
 logging.basicConfig(level=logging.INFO)
 
 store = ScanStore()
+rescue_lead_store: dict[str, dict] = {}
+
+
+class ExtensionAnalyzeRequest(BaseModel):
+    url: str
+    title: str | None = None
+    page_text_excerpt: str | None = None
+    form_fields: list[dict] = Field(default_factory=list)
+    focused_field: dict | None = None
+    trackers_detected: list[str] = Field(default_factory=list)
+    script_sources: list[str] = Field(default_factory=list)
+    privacy_policy_exists: bool = False
+    privacy_policy_url: str | None = None
+    dark_patterns_detected: list[str] = Field(default_factory=list)
+    gpc_enabled: bool = False
+    domain_age_days: int | None = None
+    user_state: str | None = "CA"
+    install_source: str | None = None
+    device_id: str | None = None
+
+
+class ExtensionRescueLeadRequest(BaseModel):
+    saved_at: str
+    page: str
+    analysis: dict = Field(default_factory=dict)
+    source: str | None = "extension"
 
 
 @asynccontextmanager
@@ -43,6 +75,167 @@ app.add_middleware(
 @app.get("/")
 async def index():
     return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.get("/extension/install")
+async def extension_install():
+    return HTMLResponse(
+        """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>Install Leak Prevent</title>
+          <style>
+            body { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: #08111d; color: #eef5ff; }
+            main { max-width: 760px; margin: 0 auto; padding: 40px 24px; }
+            .card { background: rgba(15,29,49,0.92); border: 1px solid rgba(165,197,234,0.14); border-radius: 18px; padding: 24px; margin-bottom: 18px; }
+            a { color: #81f2c8; }
+            li { margin-bottom: 10px; line-height: 1.5; }
+          </style>
+        </head>
+        <body>
+          <main>
+            <div class="card">
+              <h1>Install Leak Prevent</h1>
+              <p>Chrome does not allow a website to silently enable an extension, so the activation flow is one guided step: download the bundle, open Chrome extensions, and load it once.</p>
+            </div>
+            <div class="card">
+              <ol>
+                <li>Download the extension package from <a href="/extension/package">/extension/package</a>.</li>
+                <li>Unzip it to a folder on your machine.</li>
+                <li>Open <code>chrome://extensions</code> and turn on Developer Mode.</li>
+                <li>Click Load unpacked and select the unzipped <code>leak-prevent</code> folder.</li>
+                <li>Return to Specter and use the activation check on the homepage.</li>
+              </ol>
+            </div>
+          </main>
+        </body>
+        </html>
+        """
+    )
+
+
+@app.get("/extension/package")
+async def extension_package():
+    memory_file = io.BytesIO()
+    with zipfile.ZipFile(memory_file, mode="w", compression=zipfile.ZIP_DEFLATED) as bundle:
+      for path in EXTENSION_DIR.rglob("*"):
+        if path.is_file():
+          bundle.write(path, arcname=path.relative_to(EXTENSION_DIR.parent))
+    memory_file.seek(0)
+    headers = {"Content-Disposition": 'attachment; filename="leak-prevent.zip"'}
+    return StreamingResponse(memory_file, media_type="application/zip", headers=headers)
+
+
+@app.post("/extension/analyze")
+async def analyze_extension_page(request: ExtensionAnalyzeRequest):
+    return await build_extension_analysis(request.model_dump())
+
+
+@app.post("/extension/rescue-lead")
+async def save_extension_rescue_lead(request: ExtensionRescueLeadRequest):
+    lead_id = uuid4().hex
+    payload = request.model_dump()
+    payload["lead_id"] = lead_id
+    rescue_lead_store[lead_id] = payload
+    return {"ok": True, "lead_id": lead_id, "rescue_url": f"/rescue/{lead_id}"}
+
+
+@app.get("/rescue/{lead_id}")
+async def rescue_view(lead_id: str):
+    lead = rescue_lead_store.get(lead_id)
+    if not lead:
+        raise HTTPException(status_code=404, detail="Rescue lead not found")
+
+    analysis = lead.get("analysis", {})
+    signals = analysis.get("signals", [])
+    steps = analysis.get("steps", [])
+    risk_score = analysis.get("riskScore", 0)
+    risk_label = analysis.get("riskLabel", "Unknown")
+    domain = analysis.get("domain", "Unknown domain")
+    legal_note = analysis.get("legalNote", "")
+    trackers = analysis.get("trackersDetected", [])
+    broker_url = analysis.get("brokerOptOutUrl")
+
+    signal_items = "".join(f"<li>{item}</li>" for item in signals) or "<li>No signals recorded.</li>"
+    step_items = "".join(f"<li>{item}</li>" for item in steps) or "<li>No next steps recorded.</li>"
+    tracker_items = ", ".join(trackers) if trackers else "None detected"
+    broker_block = (
+        f'<p><a href="{broker_url}" target="_blank" rel="noreferrer">Open broker opt-out page</a></p>'
+        if broker_url
+        else ""
+    )
+    raw_json = json.dumps(lead, indent=2)
+
+    return HTMLResponse(
+        f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>Leak Rescue</title>
+          <style>
+            body {{ margin: 0; font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #08111d; color: #eef5ff; }}
+            main {{ max-width: 860px; margin: 0 auto; padding: 32px 20px 48px; }}
+            .card {{ background: rgba(15,29,49,0.92); border: 1px solid rgba(165,197,234,0.14); border-radius: 18px; padding: 22px; margin-bottom: 16px; }}
+            .pill {{ display:inline-flex; padding:6px 10px; border-radius:999px; background:rgba(129,242,200,0.1); color:#81f2c8; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; }}
+            .score {{ font-size: 40px; font-weight: 800; color: #81f2c8; }}
+            h1 {{ margin: 12px 0 8px; }}
+            h2 {{ margin: 0 0 10px; font-size: 16px; }}
+            p, li {{ line-height: 1.6; color: #d8e5f5; }}
+            .muted {{ color: #98adc5; }}
+            a {{ color: #81f2c8; }}
+            pre {{ background:#0d0d18; padding:12px; border-radius:12px; overflow:auto; color:#a8b8c9; }}
+            .grid {{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px; }}
+            @media (max-width: 760px) {{ .grid {{ grid-template-columns: 1fr; }} }}
+          </style>
+        </head>
+        <body>
+          <main>
+            <div class="card">
+              <div class="pill">Leak Rescue</div>
+              <h1>{domain}</h1>
+              <p class="muted">Saved from the extension at {lead.get("saved_at", "unknown time")}.</p>
+            </div>
+
+            <div class="grid">
+              <div class="card">
+                <h2>Risk snapshot</h2>
+                <div class="score">{risk_score}</div>
+                <p>{risk_label} risk for <strong>{domain}</strong>.</p>
+                <p class="muted">{legal_note}</p>
+              </div>
+              <div class="card">
+                <h2>What was captured</h2>
+                <p><strong>Page:</strong> {lead.get("page", "")}</p>
+                <p><strong>Trackers:</strong> {tracker_items}</p>
+                <p><strong>Site type:</strong> {analysis.get("siteType", "general")}</p>
+                {broker_block}
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Why Leak Prevent flagged it</h2>
+              <ul>{signal_items}</ul>
+            </div>
+
+            <div class="card">
+              <h2>Suggested next steps</h2>
+              <ol>{step_items}</ol>
+            </div>
+
+            <div class="card">
+              <h2>Raw saved lead</h2>
+              <pre>{raw_json}</pre>
+            </div>
+          </main>
+        </body>
+        </html>
+        """
+    )
 
 
 async def run_scan(scan_state: ScanState) -> None:

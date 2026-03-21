@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, model_validator
 
 
 class ScanRequest(BaseModel):
     full_name: str
-    email: str | None = None
-    username: str | None = None
-    phone: str | None = None
-    location: str | None = None  # for state law routing
+    email: Optional[str] = None
+    username: Optional[str] = None
+    phone: Optional[str] = None
+    location: Optional[str] = None  # for state law routing
 
     @model_validator(mode="after")
     def at_least_one_identifier(self) -> ScanRequest:

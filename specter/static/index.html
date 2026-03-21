@@ -6,23 +6,118 @@
   <title>Specter — Digital Exposure Scanner</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f;
+      --panel: #141420;
+      --panel-strong: #1a1a2e;
+      --line: #2a2a3a;
+      --text: #e0e0e0;
+      --muted: #888;
+      --accent: #00ff88;
+      --warn: #ffaa00;
+      --danger: #ff6600;
+      --critical: #ff3333;
+      --info: #6688cc;
+    }
     body {
       font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-      background: #0a0a0f;
-      color: #e0e0e0;
+      background: radial-gradient(circle at top right, rgba(0, 255, 136, 0.08), transparent 30%), var(--bg);
+      color: var(--text);
       min-height: 100vh;
     }
-    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .container { max-width: 1120px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 28px; color: var(--accent); margin-bottom: 4px; letter-spacing: 2px; }
+    h2 { font-size: 18px; margin-bottom: 8px; }
+    h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
+    .subtitle { color: #666; font-size: 13px; margin-bottom: 20px; }
+    .muted { color: var(--muted); }
 
-    h1 {
-      font-size: 28px;
-      color: #00ff88;
-      margin-bottom: 4px;
-      letter-spacing: 2px;
+    .hero-grid,
+    .panels,
+    .extension-grid,
+    .report-grid {
+      display: grid;
+      gap: 16px;
     }
-    .subtitle { color: #666; font-size: 13px; margin-bottom: 24px; }
+    .hero-grid,
+    .extension-grid,
+    .panels,
+    .report-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
-    /* ── Form ── */
+    .panel,
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .panel-header,
+    .card-header {
+      padding: 10px 16px;
+      background: var(--panel-strong);
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+    .panel-body,
+    .card-body {
+      padding: 16px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .extension-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+    .extension-status.online { color: var(--accent); border-color: rgba(0, 255, 136, 0.35); }
+    .extension-status.offline { color: var(--warn); }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .button,
+    a.button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--text);
+      text-decoration: none;
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .button.primary {
+      background: var(--accent);
+      color: #04120b;
+      border-color: transparent;
+      font-weight: bold;
+    }
+
+    .info-list,
+    .signal-list {
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -30,24 +125,23 @@
       margin-bottom: 16px;
     }
     .form-grid.full { grid-template-columns: 1fr; }
-    label { display: block; color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px; }
+    label { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px; }
     input {
       width: 100%;
       padding: 10px 12px;
-      background: #141420;
-      border: 1px solid #2a2a3a;
+      background: var(--panel);
+      border: 1px solid var(--line);
       border-radius: 6px;
-      color: #e0e0e0;
+      color: var(--text);
       font-family: inherit;
       font-size: 14px;
     }
-    input:focus { outline: none; border-color: #00ff88; }
-    input::placeholder { color: #444; }
+    input:focus { outline: none; border-color: var(--accent); }
 
     button#scanBtn {
       width: 100%;
       padding: 12px;
-      background: #00ff88;
+      background: var(--accent);
       color: #0a0a0f;
       border: none;
       border-radius: 6px;
@@ -58,88 +152,50 @@
       letter-spacing: 1px;
       margin-bottom: 24px;
     }
-    button#scanBtn:hover { background: #00cc6a; }
     button#scanBtn:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-    /* ── Status Bar ── */
     .status-bar {
       display: none;
       padding: 12px 16px;
-      background: #141420;
-      border: 1px solid #2a2a3a;
+      background: var(--panel);
+      border: 1px solid var(--line);
       border-radius: 6px;
       margin-bottom: 16px;
       font-size: 13px;
     }
-    .status-bar .status-text { color: #00ff88; }
-    .status-bar .stats { color: #888; margin-top: 4px; }
+    .status-bar .status-text { color: var(--accent); }
+    .status-bar .stats { color: var(--muted); margin-top: 4px; }
 
-    /* ── Panels ── */
-    .panels {
-      display: none;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .panel {
-      background: #141420;
-      border: 1px solid #2a2a3a;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-    .panel-header {
-      padding: 10px 16px;
-      background: #1a1a2e;
-      border-bottom: 1px solid #2a2a3a;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #888;
-    }
-    .panel-body {
-      padding: 12px;
-      max-height: 500px;
-      overflow-y: auto;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    /* ── Audit Trail ── */
-    .audit-entry {
-      padding: 8px 0;
-      border-bottom: 1px solid #1a1a2e;
-    }
-    .audit-entry:last-child { border-bottom: none; }
-    .audit-step { color: #00ff88; font-weight: bold; }
-    .audit-action { color: #e0e0e0; }
-    .audit-result { color: #888; font-size: 11px; margin-top: 2px; }
-    .audit-leads { color: #ffaa00; font-size: 11px; }
-    .audit-reasoning { color: #666; font-size: 11px; font-style: italic; }
-
-    /* ── Findings ── */
-    .finding-entry {
-      padding: 8px 0;
-      border-bottom: 1px solid #1a1a2e;
-    }
-    .finding-entry:last-child { border-bottom: none; }
-    .finding-source { font-weight: bold; }
-    .severity-critical { color: #ff3333; }
-    .severity-high { color: #ff6600; }
-    .severity-medium { color: #ffaa00; }
-    .severity-low { color: #88cc00; }
-    .severity-info { color: #6688cc; }
-    .finding-detail { color: #888; font-size: 11px; margin-top: 2px; }
-
-    /* ── Report ── */
+    .panels,
     .report-section {
       display: none;
-      margin-top: 16px;
     }
+
+    .audit-entry,
+    .finding-entry,
+    .action-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .audit-entry:last-child,
+    .finding-entry:last-child,
+    .action-item:last-child { border-bottom: none; }
+    .audit-step { color: var(--accent); font-weight: bold; }
+    .audit-result { color: var(--muted); font-size: 11px; margin-top: 2px; }
+    .audit-leads { color: var(--warn); font-size: 11px; }
+    .audit-reasoning { color: #666; font-size: 11px; font-style: italic; }
+    .severity-critical { color: var(--critical); }
+    .severity-high { color: var(--danger); }
+    .severity-medium { color: var(--warn); }
+    .severity-low { color: #88cc00; }
+    .severity-info { color: var(--info); }
+
     .report-panel {
-      background: #141420;
-      border: 1px solid #2a2a3a;
+      background: var(--panel);
+      border: 1px solid var(--line);
       border-radius: 6px;
       overflow: hidden;
-      margin-bottom: 16px;
+      margin-top: 16px;
     }
     .score-display {
       text-align: center;
@@ -147,28 +203,15 @@
       font-size: 48px;
       font-weight: bold;
     }
-    .score-low { color: #00ff88; }
-    .score-med { color: #ffaa00; }
-    .score-high { color: #ff6600; }
-    .score-crit { color: #ff3333; }
-    .score-label { font-size: 13px; color: #888; margin-top: 4px; }
-
-    .kill-chain {
-      padding: 12px;
-      border-bottom: 1px solid #1a1a2e;
-    }
-    .kill-chain-name { color: #ff6600; font-weight: bold; }
+    .score-low { color: var(--accent); }
+    .score-med { color: var(--warn); }
+    .score-high { color: var(--danger); }
+    .score-crit { color: var(--critical); }
+    .score-label { font-size: 13px; color: var(--muted); margin-top: 4px; display: inline-block; margin-left: 8px; }
     .kill-chain-step { color: #ccc; padding-left: 16px; margin-top: 4px; }
-    .kill-chain-step::before { content: "→ "; color: #ff6600; }
-
-    .action-item {
-      padding: 8px 12px;
-      border-bottom: 1px solid #1a1a2e;
-    }
-    .action-priority { color: #00ff88; font-weight: bold; }
-    .action-text { color: #e0e0e0; }
+    .kill-chain-step::before { content: "→ "; color: var(--danger); }
+    .action-priority { color: var(--accent); font-weight: bold; }
     .action-meta { color: #666; font-size: 11px; }
-
     pre.json-block {
       background: #0d0d18;
       padding: 12px;
@@ -180,18 +223,54 @@
       word-break: break-word;
     }
 
-    /* scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #0a0a0f; }
-    ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 3px; }
+    @media (max-width: 900px) {
+      .hero-grid,
+      .extension-grid,
+      .panels,
+      .report-grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>SPECTER</h1>
-    <p class="subtitle">Digital Exposure Scanner — Empire Hacks 2026</p>
+    <p class="subtitle">Digital Exposure Scanner + Leak Prevent extension</p>
 
-    <!-- Input Form -->
+    <div class="extension-grid">
+      <section class="card">
+        <div class="card-header">Chrome Extension Activation</div>
+        <div class="card-body">
+          <div id="extensionStatus" class="extension-status offline">Extension not detected yet</div>
+          <p class="muted">First-time users install the Chrome companion once, then Specter can handshake with it from this page and confirm it is active.</p>
+          <div class="button-row">
+            <a class="button primary" href="/extension/install" target="_blank" rel="noreferrer">Install guide</a>
+            <a class="button" href="/extension/package">Download extension bundle</a>
+            <button class="button" id="checkExtensionBtn" type="button">Check activation</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">What Leak Prevent Watches</div>
+        <div class="card-body">
+          <ul class="info-list">
+            <li>E-commerce checkout forms, ad trackers, and state-aware sale/share messaging.</li>
+            <li>Social profile and signup fields that may become public or discoverable by default.</li>
+            <li>Data-broker visits with opt-out links, ATS job applications, and weak-signup funnels.</li>
+            <li>Trusted government and financial sites stay quiet unless third-party tracking appears.</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <div style="margin-top: 24px;">
+      <h2>Rescue Scan</h2>
+      <p class="subtitle">Use the scanning agent to search for online leaks and next-step remediation.</p>
+    </div>
+
     <div class="form-grid">
       <div>
         <label>Full Name *</label>
@@ -220,13 +299,11 @@
     </div>
     <button id="scanBtn" onclick="startScan()">SCAN FOR EXPOSURE</button>
 
-    <!-- Status Bar -->
     <div class="status-bar" id="statusBar">
       <div class="status-text" id="statusText">Initializing...</div>
       <div class="stats" id="statsText"></div>
     </div>
 
-    <!-- Live Panels -->
     <div class="panels" id="panels">
       <div class="panel">
         <div class="panel-header">Audit Trail (Live)</div>
@@ -238,7 +315,6 @@
       </div>
     </div>
 
-    <!-- Final Report -->
     <div class="report-section" id="reportSection">
       <div class="report-panel">
         <div class="panel-header">Exposure Score</div>
@@ -271,6 +347,43 @@
     let ws = null;
     let findingsCount = 0;
 
+    function setExtensionStatus(online, note) {
+      const badge = document.getElementById('extensionStatus');
+      badge.className = `extension-status ${online ? 'online' : 'offline'}`;
+      badge.textContent = online ? 'Extension detected and ready' : 'Extension not detected yet';
+    }
+
+    function checkExtensionActivation() {
+      return new Promise((resolve) => {
+        let handled = false;
+        const timeout = setTimeout(() => {
+          if (!handled) {
+            handled = true;
+            window.removeEventListener('message', onMessage);
+            setExtensionStatus(false, 'Install the bundle, then reload this page to handshake with the content script.');
+            resolve(false);
+          }
+        }, 1200);
+
+        function onMessage(event) {
+          if (event.source !== window) return;
+          if (event.data?.type !== 'PRIVASEE_EXTENSION_PONG') return;
+          handled = true;
+          clearTimeout(timeout);
+          window.removeEventListener('message', onMessage);
+          setExtensionStatus(true, 'The extension can now warn on sensitive fields from Specter.');
+          resolve(true);
+        }
+
+        window.addEventListener('message', onMessage);
+        window.postMessage({ type: 'PRIVASEE_EXTENSION_PING' }, '*');
+      });
+    }
+
+    document.getElementById('checkExtensionBtn').addEventListener('click', () => {
+      checkExtensionActivation();
+    });
+
     async function startScan() {
       const fullName = document.getElementById('fullName').value.trim();
       const email = document.getElementById('email').value.trim();
@@ -285,7 +398,6 @@
       btn.disabled = true;
       btn.textContent = 'SCANNING...';
 
-      // Reset UI
       findingsCount = 0;
       document.getElementById('auditTrail').innerHTML = '';
       document.getElementById('findingsList').innerHTML = '';
@@ -295,7 +407,6 @@
       document.getElementById('panels').style.display = 'grid';
       setStatus('Starting scan...', '');
 
-      // Build request
       const body = { full_name: fullName };
       if (email) body.email = email;
       if (username) body.username = username;
@@ -309,7 +420,7 @@
           body: JSON.stringify(body),
         });
         const data = await resp.json();
-        if (!data.scan_id) { throw new Error('No scan_id returned'); }
+        if (!data.scan_id) throw new Error('No scan_id returned');
 
         setStatus(`Scan started: ${data.scan_id}`, 'Connecting to live stream...');
         connectWebSocket(data.scan_id);
@@ -331,12 +442,7 @@
 
       ws.onerror = () => {
         setStatus('WebSocket error — polling for results...', '');
-        // Fallback: poll the API
         pollResults(scanId);
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket closed');
       };
     }
 
@@ -345,74 +451,45 @@
         case 'status':
           setStatus(`Status: ${event.status}`, `Findings so far: ${event.findings_count || 0}`);
           break;
-
         case 'scan_started':
           setStatus(`Scan running (${event.sources_count} tools available)`, 'Round 1 starting...');
           break;
-
         case 'round_start':
           setStatus(`Round ${event.round} in progress...`, `Findings: ${findingsCount}`);
           break;
-
         case 'tool_call':
-          addAuditEntry({
-            step: '→',
-            action: `Calling ${event.tool}`,
-            result_summary: JSON.stringify(event.input),
-          });
+          addAuditEntry({ step: '→', action: `Calling ${event.tool}`, result_summary: JSON.stringify(event.input) });
           break;
-
         case 'tool_result':
-          addAuditEntry({
-            step: '✓',
-            action: `${event.tool} completed`,
-            result_summary: `${event.finding_count} finding(s)`,
-          });
+          addAuditEntry({ step: '✓', action: `${event.tool} completed`, result_summary: `${event.finding_count} finding(s)` });
           break;
-
         case 'finding':
           findingsCount++;
           document.getElementById('findingsCount').textContent = findingsCount;
           addFinding(event.finding);
           break;
-
         case 'audit_step':
           addAuditEntry(event.step);
           break;
-
         case 'round_complete':
-          setStatus(
-            `Round ${event.round} complete`,
-            `Total findings: ${event.findings_count}, New leads: ${event.new_leads}`
-          );
-          addAuditEntry({
-            step: '●',
-            action: `Round ${event.round} complete`,
-            result_summary: `${event.findings_count} findings, ${event.new_leads} new leads`,
-          });
+          setStatus(`Round ${event.round} complete`, `Total findings: ${event.findings_count}, New leads: ${event.new_leads}`);
+          addAuditEntry({ step: '●', action: `Round ${event.round} complete`, result_summary: `${event.findings_count} findings, ${event.new_leads} new leads` });
           break;
-
         case 'risk_assessment':
-          setStatus(`Risk assessment complete`, `Score: ${event.score}/100`);
+          setStatus('Risk assessment complete', `Score: ${event.score}/100`);
           break;
-
         case 'scan_complete':
-          setStatus(`Scan complete`, `Final report ready`);
+          setStatus('Scan complete', 'Final report ready');
           showReport(event.report);
           document.getElementById('scanBtn').disabled = false;
           document.getElementById('scanBtn').textContent = 'SCAN FOR EXPOSURE';
           if (ws) ws.close();
           break;
-
         case 'error':
           setStatus(`Error: ${event.message}`, '');
-          // Still try to fetch whatever report exists
           fetchReport(scanId);
           document.getElementById('scanBtn').disabled = false;
           document.getElementById('scanBtn').textContent = 'SCAN FOR EXPOSURE';
-          break;
-
-        case 'ping':
           break;
       }
     }
@@ -427,15 +504,9 @@
       div.className = 'audit-entry';
 
       let html = `<span class="audit-step">[${entry.step || '•'}]</span> <span class="audit-action">${escHtml(entry.action || '')}</span>`;
-      if (entry.result_summary) {
-        html += `<div class="audit-result">${escHtml(entry.result_summary)}</div>`;
-      }
-      if (entry.new_leads && entry.new_leads.length > 0) {
-        html += `<div class="audit-leads">Leads: ${escHtml(entry.new_leads.join(', '))}</div>`;
-      }
-      if (entry.reasoning) {
-        html += `<div class="audit-reasoning">${escHtml(entry.reasoning)}</div>`;
-      }
+      if (entry.result_summary) html += `<div class="audit-result">${escHtml(entry.result_summary)}</div>`;
+      if (entry.new_leads && entry.new_leads.length > 0) html += `<div class="audit-leads">Leads: ${escHtml(entry.new_leads.join(', '))}</div>`;
+      if (entry.reasoning) html += `<div class="audit-reasoning">${escHtml(entry.reasoning)}</div>`;
       div.innerHTML = html;
 
       const container = document.getElementById('auditTrail');
@@ -446,19 +517,13 @@
     function addFinding(finding) {
       const div = document.createElement('div');
       div.className = 'finding-entry';
-
       const sevClass = `severity-${finding.severity}`;
       let html = `<span class="finding-source">[${escHtml(finding.source)}]</span> `;
       html += `<span class="${sevClass}">${escHtml(finding.severity.toUpperCase())}</span> `;
       html += `— ${escHtml(finding.finding_type)}`;
       html += `<div class="finding-detail">${escHtml(finding.source_url)}</div>`;
-
-      if (finding.leads_to && finding.leads_to.length > 0) {
-        html += `<div class="audit-leads">→ ${escHtml(finding.leads_to.slice(0, 3).join(', '))}</div>`;
-      }
-
+      if (finding.leads_to && finding.leads_to.length > 0) html += `<div class="audit-leads">→ ${escHtml(finding.leads_to.slice(0, 3).join(', '))}</div>`;
       div.innerHTML = html;
-
       const container = document.getElementById('findingsList');
       container.appendChild(div);
       container.scrollTop = container.scrollHeight;
@@ -467,7 +532,6 @@
     function showReport(report) {
       document.getElementById('reportSection').style.display = 'block';
 
-      // Score
       const score = report.exposure_score || 0;
       const scoreEl = document.getElementById('scoreDisplay');
       let scoreClass = 'score-low';
@@ -476,51 +540,41 @@
       else if (score >= 25) scoreClass = 'score-med';
       scoreEl.innerHTML = `<span class="${scoreClass}">${score}</span><span class="score-label">/100 EXPOSURE RISK</span>`;
 
-      // Kill chains
       const chainsEl = document.getElementById('killChains');
       chainsEl.innerHTML = '';
-      (report.kill_chains || []).forEach(chain => {
+      (report.kill_chains || []).forEach((chain) => {
         let html = `<div class="kill-chain"><div class="kill-chain-name">${escHtml(chain.name || '')}</div>`;
-        (chain.steps || []).forEach(step => {
-          html += `<div class="kill-chain-step">${escHtml(step)}</div>`;
-        });
+        (chain.steps || []).forEach((step) => { html += `<div class="kill-chain-step">${escHtml(step)}</div>`; });
         if (chain.likelihood) html += `<div style="color:#666;font-size:11px;margin-top:4px">Likelihood: ${chain.likelihood} | Impact: ${chain.impact || 'unknown'}</div>`;
         html += '</div>';
         chainsEl.innerHTML += html;
       });
       if (!report.kill_chains?.length) chainsEl.innerHTML = '<div style="padding:12px;color:#666">No attack paths identified</div>';
 
-      // Actions
       const actionsEl = document.getElementById('actionsList');
       actionsEl.innerHTML = '';
-      (report.actions || []).forEach(action => {
-        let html = `<div class="action-item">`;
-        html += `<span class="action-priority">#${action.priority || '?'}</span> `;
+      (report.actions || []).forEach((action) => {
+        let html = `<div class="action-item"><span class="action-priority">#${action.priority || '?'}</span> `;
         html += `<span class="action-text">${escHtml(action.action || '')}</span>`;
-        if (action.category || action.effort) {
-          html += `<div class="action-meta">${escHtml(action.category || '')} · ${escHtml(action.effort || '')}</div>`;
-        }
+        if (action.category || action.effort) html += `<div class="action-meta">${escHtml(action.category || '')} · ${escHtml(action.effort || '')}</div>`;
         html += '</div>';
         actionsEl.innerHTML += html;
       });
 
-      // Laws
       const lawsEl = document.getElementById('lawsList');
       lawsEl.innerHTML = '';
-      (report.applicable_laws || []).forEach(law => {
-        let html = `<div class="action-item">`;
-        html += `<strong style="color:#6688cc">${escHtml(law.law || '')}</strong> (${escHtml(law.jurisdiction || '')})`;
+      (report.applicable_laws || []).forEach((law) => {
+        let html = `<div class="action-item"><strong style="color:#6688cc">${escHtml(law.law || '')}</strong> (${escHtml(law.jurisdiction || '')})`;
         html += `<div class="action-meta">${escHtml(law.relevance || '')}</div>`;
         if (law.user_rights) {
           html += '<div style="margin-top:4px">';
-          law.user_rights.forEach(r => { html += `<div style="color:#888;font-size:11px">• ${escHtml(r)}</div>`; });
+          law.user_rights.forEach((r) => { html += `<div style="color:#888;font-size:11px">• ${escHtml(r)}</div>`; });
           html += '</div>';
         }
         html += '</div>';
         lawsEl.innerHTML += html;
       });
 
-      // Full JSON
       document.getElementById('fullJson').textContent = JSON.stringify(report, null, 2);
     }
 
@@ -529,12 +583,14 @@
         const resp = await fetch(`/scan/${scanId}`);
         const report = await resp.json();
         if (report.findings) showReport(report);
-      } catch (e) { console.error(e); }
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     async function pollResults(scanId) {
       for (let i = 0; i < 60; i++) {
-        await new Promise(r => setTimeout(r, 3000));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
         try {
           const resp = await fetch(`/scan/${scanId}`);
           const data = await resp.json();
@@ -545,16 +601,17 @@
             return;
           }
           setStatus(`Polling... (${data.status || 'running'})`, `Findings: ${data.findings_count || 0}`);
-        } catch (e) { /* keep polling */ }
+        } catch (error) {}
       }
     }
 
-    function escHtml(s) {
-      if (typeof s !== 'string') s = String(s);
-      const d = document.createElement('div');
-      d.textContent = s;
-      return d.innerHTML;
+    function escHtml(value) {
+      const node = document.createElement('div');
+      node.textContent = typeof value === 'string' ? value : String(value);
+      return node.innerHTML;
     }
+
+    checkExtensionActivation();
   </script>
 </body>
 </html>

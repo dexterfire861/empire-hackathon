@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from specter.agent.schemas import Finding
 
 # State privacy law reference
@@ -93,7 +95,7 @@ STATE_ABBREVIATIONS: dict[str, str] = {
 }
 
 
-def _resolve_state(location: str | None) -> str | None:
+def _resolve_state(location: Optional[str]) -> Optional[str]:
     if not location:
         return None
     loc = location.strip().upper()
@@ -107,7 +109,7 @@ def _resolve_state(location: str | None) -> str | None:
 
 
 def generate_actions(
-    findings: list[Finding], location: str | None = None
+    findings: list[Finding], location: Optional[str] = None
 ) -> list[dict]:
     """Generate prioritized remediation actions from findings."""
     actions: list[dict] = []
@@ -267,7 +269,7 @@ def generate_actions(
     return actions
 
 
-def get_applicable_laws(location: str | None) -> list[dict]:
+def get_applicable_laws(location: Optional[str]) -> list[dict]:
     """Return applicable privacy laws based on user's location."""
     state = _resolve_state(location)
     if state and state in STATE_LAWS:

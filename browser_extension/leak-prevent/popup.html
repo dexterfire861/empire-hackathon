@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leak Prevent</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell stack">
+      <div class="brand-row">
+        <div>
+          <div class="pill">Leak Prevent</div>
+          <h1>Live site check</h1>
+        </div>
+        <span class="brand-mark"></span>
+      </div>
+
+      <section class="card">
+        <div class="risk-row">
+          <div>
+            <div class="muted">Current page risk</div>
+            <div class="score" id="score">--</div>
+          </div>
+          <div class="badge" id="riskLabel">Analyzing</div>
+        </div>
+        <p class="muted" id="domainLabel">Waiting for active tab</p>
+        <p class="muted" id="legalNote"></p>
+      </section>
+
+      <section class="card">
+        <h3>Signals detected</h3>
+        <ul id="signalList" class="signal-list"></ul>
+      </section>
+
+      <a class="button button-primary button-link" href="./options.html" target="_blank" rel="noreferrer">Settings</a>
+
+      <button class="button button-secondary" id="saveLead">Actions to take</button>
+    </div>
+
+    <script src="./popup.js"></script>
+  </body>
+</html>

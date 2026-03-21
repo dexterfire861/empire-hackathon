@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leak Prevent Panel</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell stack">
+      <div class="brand-row">
+        <div>
+          <div class="pill">Leak Prevent</div>
+          <h1>Live privacy assistant</h1>
+        </div>
+        <span class="brand-mark"></span>
+      </div>
+
+      <section class="card">
+        <div class="muted">Active domain</div>
+        <h2 id="panelDomain">Waiting for a page</h2>
+        <p class="muted" id="panelSummary">
+          We explain suspicious collection patterns, likely leakage paths, and what to do next.
+        </p>
+      </section>
+
+      <section class="card">
+        <h3>Why this page may be risky</h3>
+        <ul class="signal-list" id="panelSignals"></ul>
+      </section>
+
+      <section class="card">
+        <h3>Recommended actions</h3>
+        <ol class="step-list" id="panelSteps"></ol>
+      </section>
+
+      <section class="card">
+        <h3>Detected trackers</h3>
+        <ul class="signal-list" id="panelTrackers"></ul>
+      </section>
+    </div>
+
+    <script src="./sidepanel.js"></script>
+  </body>
+</html>

@@ -4,6 +4,7 @@ import json
 import shutil
 import tempfile
 from pathlib import Path
+from typing import Optional
 
 import httpx
 
@@ -63,7 +64,7 @@ class ExifToolScanSource(BaseSource):
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
 
-    async def _download_file(self, url: str, tmpdir: str) -> Path | None:
+    async def _download_file(self, url: str, tmpdir: str) -> Optional[Path]:
         """Download a file with size limit."""
         try:
             async with httpx.AsyncClient(timeout=API_TIMEOUT, follow_redirects=True) as client:

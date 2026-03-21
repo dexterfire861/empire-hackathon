@@ -5,6 +5,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
+from typing import Optional
 
 from specter.agent.schemas import Finding, ScanReport, ScanRequest
 
@@ -45,7 +46,7 @@ class ScanState:
     status: ScanStatus = ScanStatus.PENDING
     findings: list[Finding] = field(default_factory=list)
     audit_trail: list[dict] = field(default_factory=list)
-    report: ScanReport | None = None
+    report: Optional[ScanReport] = None
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     event_bus: EventBus = field(default_factory=EventBus)
     started_at: datetime = field(
@@ -65,7 +66,7 @@ class ScanStore:
         self._scans[scan_id] = state
         return state
 
-    def get(self, scan_id: str) -> ScanState | None:
+    def get(self, scan_id: str) -> Optional[ScanState]:
         return self._scans.get(scan_id)
 
     async def add_finding(self, scan_id: str, finding: Finding) -> None:
