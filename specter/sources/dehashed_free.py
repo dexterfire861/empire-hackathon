@@ -5,7 +5,7 @@ import asyncio
 import httpx
 
 from specter.agent.schemas import Finding
-from specter.config import API_TIMEOUT
+from specter.config import API_TIMEOUT, BREACHDIRECTORY_RAPIDAPI_KEY
 from specter.sources.base import BaseSource, register_source
 
 
@@ -13,11 +13,14 @@ from specter.sources.base import BaseSource, register_source
 class LeakCheckSource(BaseSource):
     name = "leakcheck"
     description = (
-        "Check if an email appears in known data leaks using free breach-check services "
-        "(emailrep.io, breach directory lookups). Returns breach exposure data, email "
-        "reputation, and whether credentials have been leaked."
+        "Check if an email appears in known data leaks using EmailRep and optional "
+        "BreachDirectory lookups. Returns breach exposure data, email reputation, "
+        "and whether credentials have been leaked."
     )
     input_types = ["email"]
+
+    def __init__(self) -> None:
+        self.scan_request = None
 
     @classmethod
     def tool_definition(cls) -> dict:
@@ -39,13 +42,22 @@ class LeakCheckSource(BaseSource):
     async def scan(self, input_type: str, input_value: str) -> list[Finding]:
         email = input_value.strip().lower()
         findings: list[Finding] = []
+        checks = []
+        request = getattr(self, "scan_request", None)
 
-        # Run checks concurrently
-        results = await asyncio.gather(
-            self._check_emailrep(email),
-            self._check_leak_databases(email),
-            return_exceptions=True,
-        )
+        if getattr(request, "use_emailrep", False):
+            checks.append(self._check_emailrep(email))
+
+        if (
+            getattr(request, "use_breachdirectory", False)
+            and BREACHDIRECTORY_RAPIDAPI_KEY
+        ):
+            checks.append(self._check_breachdirectory(email))
+
+        if not checks:
+            return findings
+
+        results = await asyncio.gather(*checks, return_exceptions=True)
 
         for result in results:
             if isinstance(result, list):
@@ -129,75 +141,103 @@ class LeakCheckSource(BaseSource):
         except (httpx.HTTPError, httpx.TimeoutException):
             return []
 
-    async def _check_leak_databases(self, email: str) -> list[Finding]:
-        """Check if email appears in known leak compilation databases."""
+    async def _check_breachdirectory(self, email: str) -> list[Finding]:
+        """Check BreachDirectory via RapidAPI."""
         findings: list[Finding] = []
+        if not BREACHDIRECTORY_RAPIDAPI_KEY:
+            return findings
 
-        # Check multiple free breach-check services
-        services = [
-            {
-                "name": "BreachDirectory",
-                "url": f"https://breachdirectory.org/api/entries?email={email}",
-            },
-            {
-                "name": "LeakPeek",
-                "url": f"https://leakpeek.com/api/search?query={email}&type=email",
-            },
-        ]
+        try:
+            async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
+                resp = await client.get(
+                    "https://breachdirectory.p.rapidapi.com/",
+                    params={"func": "auto", "term": email},
+                    headers={
+                        "Content-Type": "application/json",
+                        "User-Agent": "Specter-Scanner",
+                        "x-rapidapi-host": "breachdirectory.p.rapidapi.com",
+                        "x-rapidapi-key": BREACHDIRECTORY_RAPIDAPI_KEY,
+                    },
+                )
 
-        for svc in services:
-            try:
-                async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
-                    resp = await client.get(
-                        svc["url"],
-                        headers={"User-Agent": "Specter-Scanner"},
-                    )
+            if resp.status_code != 200:
+                return findings
 
-                if resp.status_code != 200:
-                    continue
+            data = resp.json()
+        except (ValueError, httpx.HTTPError, httpx.TimeoutException):
+            return findings
 
-                try:
-                    data = resp.json()
-                except Exception:
-                    continue
+        entries = self._extract_breachdirectory_entries(data)
 
-                # Handle different response formats
-                entries = []
-                if isinstance(data, dict):
-                    if data.get("success") and data.get("result"):
-                        entries = data["result"] if isinstance(data["result"], list) else []
-                    elif data.get("results"):
-                        entries = data["results"] if isinstance(data["results"], list) else []
-                elif isinstance(data, list):
-                    entries = data
+        if not entries and self._looks_like_positive_breachdirectory_response(data):
+            entries = [data]
 
-                for entry in entries[:10]:
-                    if not isinstance(entry, dict):
-                        continue
-                    source_name = entry.get("source", entry.get("name", svc["name"]))
-                    has_password = entry.get("has_password", False)
+        for entry in entries[:10]:
+            record = entry if isinstance(entry, dict) else {"value": entry}
+            source_name = (
+                record.get("source")
+                or record.get("name")
+                or record.get("breach")
+                or "BreachDirectory"
+            )
+            has_password = any(
+                bool(record.get(key))
+                for key in ("password", "hash", "sha1", "sha256", "bcrypt")
+            ) or bool(record.get("has_password"))
 
-                    findings.append(
-                        Finding(
-                            source="leakcheck",
-                            source_url=svc["url"].split("?")[0],
-                            finding_type="leaked_credential" if has_password else "breach",
-                            data={
-                                "service": svc["name"],
-                                "breach_source": source_name,
-                                "has_password": has_password,
-                            },
-                            confidence="high",
-                            input_used="email",
-                            original_input=email,
-                            leads_to=[
-                                f"credential_risk:password exposed in {source_name}"
-                            ] if has_password else [],
-                            severity="critical" if has_password else "high",
-                        )
-                    )
-
-            except (httpx.HTTPError, httpx.TimeoutException):
-                continue
+            findings.append(
+                Finding(
+                    source="leakcheck",
+                    source_url="https://breachdirectory.p.rapidapi.com/",
+                    finding_type="leaked_credential" if has_password else "breach",
+                    data={
+                        "service": "BreachDirectory",
+                        "breach_source": source_name,
+                        "has_password": has_password,
+                        "result": record,
+                    },
+                    confidence="high" if has_password else "medium",
+                    input_used="email",
+                    original_input=email,
+                    leads_to=[
+                        f"credential_risk:password-related data exposed in {source_name}"
+                    ]
+                    if has_password
+                    else [],
+                    severity="critical" if has_password else "high",
+                )
+            )
 
         return findings
+
+    @staticmethod
+    def _extract_breachdirectory_entries(data: object) -> list:
+        if isinstance(data, list):
+            return data
+
+        if not isinstance(data, dict):
+            return []
+
+        for key in ("result", "results", "data", "entries", "breaches", "matches"):
+            value = data.get(key)
+            if isinstance(value, list):
+                return value
+
+        return []
+
+    @staticmethod
+    def _looks_like_positive_breachdirectory_response(data: object) -> bool:
+        if not isinstance(data, dict):
+            return False
+
+        positive_markers = [
+            "password",
+            "hash",
+            "sha1",
+            "sha256",
+            "bcrypt",
+            "source",
+            "breach",
+            "line",
+        ]
+        return any(key in data for key in positive_markers)

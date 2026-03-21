@@ -66,15 +66,22 @@ class GoogleSearchSource(BaseSource):
             "num": 10,
         }
 
-        async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
-            # Small delay to respect rate limits
-            await asyncio.sleep(0.5)
-            resp = await client.get(url, params=params)
+        try:
+            async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
+                # Small delay to respect rate limits
+                await asyncio.sleep(0.5)
+                resp = await client.get(url, params=params)
+        except (httpx.HTTPError, httpx.TimeoutException):
+            return []
 
         if resp.status_code != 200:
             return []
 
-        data = resp.json()
+        try:
+            data = resp.json()
+        except ValueError:
+            return []
+
         items = data.get("items", [])
 
         if not items:

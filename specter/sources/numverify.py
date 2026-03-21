@@ -43,13 +43,20 @@ class NumVerifySource(BaseSource):
             "country_code": "US",
         }
 
-        async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
-            resp = await client.get(url, params=params)
+        try:
+            async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
+                resp = await client.get(url, params=params)
+        except (httpx.HTTPError, httpx.TimeoutException):
+            return []
 
         if resp.status_code != 200:
             return []
 
-        data = resp.json()
+        try:
+            data = resp.json()
+        except ValueError:
+            return []
+
         if not data.get("valid", False):
             return [
                 Finding(

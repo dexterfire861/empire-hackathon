@@ -12,7 +12,13 @@ import anthropic
 from specter.agent.prompts import RISK_ASSESSMENT_PROMPT, SYSTEM_PROMPT
 from specter.agent.scan_store import ScanState, ScanStatus, ScanStore
 from specter.agent.schemas import Finding, ScanReport
-from specter.config import ANTHROPIC_API_KEY, CLAUDE_MODEL, MAX_SCAN_ROUNDS, SUBPROCESS_TIMEOUT
+from specter.config import (
+    ANTHROPIC_API_KEY,
+    BREACHDIRECTORY_RAPIDAPI_KEY,
+    CLAUDE_MODEL,
+    MAX_SCAN_ROUNDS,
+    SUBPROCESS_TIMEOUT,
+)
 from specter.agent.username_gen import generate_username_permutations
 from specter.risk.actions import generate_actions, get_applicable_laws
 from specter.risk.kill_chain import generate_kill_chains
@@ -37,6 +43,7 @@ class Orchestrator:
         self.messages: list[dict] = []
         self.step_counter = 0
         self.start_time = time.time()
+        self.tool_result_cache: dict[str, dict] = {}
 
     # ── Setup ───────────────────────────────────────────────────────────
 
@@ -44,20 +51,39 @@ class Orchestrator:
         """Build Anthropic-format tool definitions from all available sources."""
         tools: list[dict] = []
         for name, source_cls in SOURCE_REGISTRY.items():
-            if source_cls.is_available():
+            if self._source_enabled(name, source_cls):
                 tools.append(source_cls.tool_definition())
                 logger.info("Tool registered: scan_%s", name)
             else:
-                logger.info("Tool unavailable (missing key/binary): scan_%s", name)
+                logger.info("Tool unavailable or disabled: scan_%s", name)
         return tools
 
     def _instantiate_sources(self) -> dict[str, object]:
         """Create one instance of each available source."""
-        return {
-            name: cls()
-            for name, cls in SOURCE_REGISTRY.items()
-            if cls.is_available()
-        }
+        instances: dict[str, object] = {}
+        for name, cls in SOURCE_REGISTRY.items():
+            if not self._source_enabled(name, cls):
+                continue
+            instance = cls()
+            setattr(instance, "scan_request", self.state.request)
+            instances[name] = instance
+        return instances
+
+    def _source_enabled(self, name: str, source_cls: type) -> bool:
+        """Filter sources by environment and per-scan opt-in flags."""
+        if not source_cls.is_available():
+            return False
+
+        req = self.state.request
+        if name == "leakcheck":
+            return req.use_emailrep or (
+                req.use_breachdirectory and bool(BREACHDIRECTORY_RAPIDAPI_KEY)
+            )
+
+        if name == "paste_search":
+            return True
+
+        return True
 
     def _build_initial_message(self) -> str:
         """Construct the first user message from the scan request."""
@@ -243,6 +269,11 @@ class Orchestrator:
         tool_name = tool_use.name  # e.g., "scan_hibp"
         source_name = tool_name.removeprefix("scan_")
         inputs = tool_use.input
+        cache_key = json.dumps(
+            {"tool": source_name, "input": inputs},
+            sort_keys=True,
+            default=str,
+        )
 
         # Log the tool call
         await self.state.event_bus.publish(
@@ -257,6 +288,23 @@ class Orchestrator:
         source = self.source_instances.get(source_name)
         if not source:
             return {"error": f"Unknown source: {source_name}", "findings": []}
+
+        cached = self.tool_result_cache.get(cache_key)
+        if cached is not None:
+            finding_count = cached.get("count", 0)
+            await self._log_audit(
+                action=f"{source_name} reused",
+                result_summary=f"Using cached result from this scan ({finding_count} findings)",
+                reasoning="Skipping duplicate source call within the same run",
+            )
+            await self.state.event_bus.publish(
+                {
+                    "type": "tool_result",
+                    "tool": source_name,
+                    "finding_count": finding_count,
+                }
+            )
+            return cached
 
         # Determine input_type and input_value from the tool inputs
         input_type, input_value = self._extract_input(inputs, source_name)
@@ -304,10 +352,12 @@ class Orchestrator:
             }
         )
 
-        return {
+        result = {
             "findings": [f.model_dump(mode="json") for f in findings],
             "count": len(findings),
         }
+        self.tool_result_cache[cache_key] = result
+        return result
 
     def _extract_input(
         self, inputs: dict, source_name: str

@@ -5,7 +5,7 @@ import re
 import httpx
 
 from specter.agent.schemas import Finding
-from specter.config import API_TIMEOUT
+from specter.config import API_TIMEOUT, INTELX_API_KEY
 from specter.sources.base import BaseSource, register_source
 
 
@@ -18,6 +18,9 @@ class PasteSearchSource(BaseSource):
         "Also checks the Google cache of paste sites for deleted content."
     )
     input_types = ["email", "username"]
+
+    def __init__(self) -> None:
+        self.scan_request = None
 
     @classmethod
     def tool_definition(cls) -> dict:
@@ -45,12 +48,15 @@ class PasteSearchSource(BaseSource):
         query = input_value.strip()
         findings: list[Finding] = []
 
-        # Check multiple paste/dump search services
-        checks = [
-            self._check_psbdmp(query),
-            self._check_paste_search_service(query),
-            self._check_intelx_public(query),
-        ]
+        checks = [self._check_psbdmp(query)]
+
+        if self._intelx_enabled():
+            checks.extend(
+                [
+                    self._check_paste_search_service(query),
+                    self._check_intelx_public(query),
+                ]
+            )
 
         results = await __import__("asyncio").gather(*checks, return_exceptions=True)
 
@@ -113,9 +119,11 @@ class PasteSearchSource(BaseSource):
     async def _check_paste_search_service(self, query: str) -> list[Finding]:
         """Check IntelligenceX paste search (free public endpoint)."""
         findings: list[Finding] = []
+        if not self._intelx_enabled():
+            return findings
+
         try:
-            # Search via the IntelX public phonebook (free, limited)
-            url = "https://2.intelx.io/phonebook/search"
+            url = "https://free.intelx.io/phonebook/search"
             payload = {
                 "term": query,
                 "maxresults": 10,
@@ -129,7 +137,7 @@ class PasteSearchSource(BaseSource):
                     url,
                     json=payload,
                     headers={
-                        "x-key": "9df61df0-84f7-4dc7-b34c-8ccfb8646571",  # public free-tier key
+                        "x-key": INTELX_API_KEY,
                         "User-Agent": "Specter-Scanner",
                     },
                 )
@@ -140,12 +148,12 @@ class PasteSearchSource(BaseSource):
                 if search_id:
                     # Fetch results
                     await __import__("asyncio").sleep(2)
-                    result_url = f"https://2.intelx.io/phonebook/search/result?id={search_id}&limit=10"
+                    result_url = f"https://free.intelx.io/phonebook/search/result?id={search_id}&limit=10"
                     async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
                         resp2 = await client.get(
                             result_url,
                             headers={
-                                "x-key": "9df61df0-84f7-4dc7-b34c-8ccfb8646571",
+                                "x-key": INTELX_API_KEY,
                                 "User-Agent": "Specter-Scanner",
                             },
                         )
@@ -184,8 +192,11 @@ class PasteSearchSource(BaseSource):
     async def _check_intelx_public(self, query: str) -> list[Finding]:
         """Search IntelX public search for darknet/paste exposure."""
         findings: list[Finding] = []
+        if not self._intelx_enabled():
+            return findings
+
         try:
-            url = "https://2.intelx.io/intelligent/search"
+            url = "https://free.intelx.io/intelligent/search"
             payload = {
                 "term": query,
                 "maxresults": 5,
@@ -198,7 +209,7 @@ class PasteSearchSource(BaseSource):
                     url,
                     json=payload,
                     headers={
-                        "x-key": "9df61df0-84f7-4dc7-b34c-8ccfb8646571",
+                        "x-key": INTELX_API_KEY,
                         "User-Agent": "Specter-Scanner",
                     },
                 )
@@ -208,12 +219,12 @@ class PasteSearchSource(BaseSource):
                 search_id = data.get("id")
                 if search_id:
                     await __import__("asyncio").sleep(3)
-                    result_url = f"https://2.intelx.io/intelligent/search/result?id={search_id}&limit=5"
+                    result_url = f"https://free.intelx.io/intelligent/search/result?id={search_id}&limit=5"
                     async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
                         resp2 = await client.get(
                             result_url,
                             headers={
-                                "x-key": "9df61df0-84f7-4dc7-b34c-8ccfb8646571",
+                                "x-key": INTELX_API_KEY,
                                 "User-Agent": "Specter-Scanner",
                             },
                         )
@@ -253,3 +264,7 @@ class PasteSearchSource(BaseSource):
             pass
 
         return findings
+
+    def _intelx_enabled(self) -> bool:
+        request = getattr(self, "scan_request", None)
+        return bool(INTELX_API_KEY) and bool(getattr(request, "use_intelx", False))

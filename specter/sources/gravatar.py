@@ -39,14 +39,22 @@ class GravatarSource(BaseSource):
         email_hash = hashlib.md5(email.encode()).hexdigest()
         url = f"https://en.gravatar.com/{email_hash}.json"
 
-        async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
-            resp = await client.get(url)
+        try:
+            async with httpx.AsyncClient(timeout=API_TIMEOUT) as client:
+                resp = await client.get(url)
+        except (httpx.HTTPError, httpx.TimeoutException):
+            return []
 
         if resp.status_code == 404:
             return []
-        resp.raise_for_status()
+        if resp.status_code != 200:
+            return []
 
-        data = resp.json()
+        try:
+            data = resp.json()
+        except ValueError:
+            return []
+
         entry = data.get("entry", [{}])[0]
 
         display_name = entry.get("displayName", "")
