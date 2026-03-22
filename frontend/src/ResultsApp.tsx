@@ -2,10 +2,10 @@ import { startTransition, type ReactNode, useDeferredValue, useEffect, useReduce
 
 import { FindingsRail } from "./components/FindingsRail";
 import { LiveWorkspace } from "./components/LiveWorkspace";
+import { ReportLoading } from "./components/ReportLoading";
 import { ReportSummary } from "./components/ReportSummary";
 import { ResultsHeader } from "./components/ResultsHeader";
 import { UtilityOverlay } from "./components/UtilityOverlay";
-import { GlowingEffect } from "./components/ui/glowing-effect";
 import {
   auditKey,
   buildEvidencePacket,
@@ -34,6 +34,7 @@ import type {
   Finding,
   PrivacyResource,
   ResultsReport,
+  ScanInputs,
   SafetyBoundary,
   ScanEvent,
   ScanProgressPayload,
@@ -52,6 +53,7 @@ interface ResultsUiState {
   currentRound: number | null;
   currentToolLabel: string | null;
   highlightedAuditKey: string | null;
+  scanInputs: ScanInputs | null;
 }
 
 type ResultsAction =
@@ -75,6 +77,7 @@ const initialState: ResultsUiState = {
   currentRound: null,
   currentToolLabel: null,
   highlightedAuditKey: null,
+  scanInputs: null,
 };
 
 function mergeFindings(current: Finding[], next: Finding[]) {
@@ -114,6 +117,7 @@ function loadCompletedReport(state: ResultsUiState, report: ResultsReport): Resu
     connectionMode: "complete",
     currentToolLabel: null,
     highlightedAuditKey: null,
+    scanInputs: report.inputs ?? state.scanInputs,
   };
 }
 
@@ -136,6 +140,7 @@ function resultsReducer(state: ResultsUiState, action: ResultsAction): ResultsUi
         findings,
         auditEntries,
         currentRound: getActiveRound(auditEntries) ?? state.currentRound,
+        scanInputs: action.payload.inputs ?? state.scanInputs,
       };
     }
     case "set_connection_mode":
@@ -157,6 +162,7 @@ function resultsReducer(state: ResultsUiState, action: ResultsAction): ResultsUi
             scanStatus: event.status ?? state.scanStatus,
             statusTitle: `Status: ${event.status ?? state.scanStatus ?? "running"}`,
             statusDetail: `Findings so far: ${event.findings_count ?? state.findings.length}`,
+            scanInputs: event.inputs ?? state.scanInputs,
           };
         case "scan_started":
           return {
@@ -502,41 +508,215 @@ function ActionList({ items, findings }: { items: ActionItem[]; findings: Findin
     return <div className="panel-empty panel-empty--inline">No remediation actions were generated.</div>;
   }
 
+  const sortedItems = [...items].sort((left, right) => (left.priority ?? 999) - (right.priority ?? 999));
+
   return (
     <div className="report-card-list">
-      {items.map((item, index) => (
-        <article key={`${item.action ?? "action"}-${index}`} className="report-card">
-          <div className="report-card__title-row">
-            <h4>{item.action ?? "Action"}</h4>
-            <span className="priority-badge">#{item.priority ?? "?"}</span>
-          </div>
-          {getActionSubtitle(item) ? <p className="report-card__subcopy">{getActionSubtitle(item)}</p> : null}
-          <ConclusionMeta item={item} findings={findings} options={{ showReason: true, showEvidence: true }} />
-          {(item.links?.length || (item.official_url && isHttpUrl(item.official_url))) ? (
-            <div className="action-chip-row">
-              {(item.links ?? [])
-                .filter((link) => isHttpUrl(link.url))
-                .map((link) => (
-                  <a
-                    key={`${item.action}-${link.url}`}
-                    className="action-chip action-chip--primary"
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {link.label ?? "Open resource"}
-                  </a>
-                ))}
-              {!item.links?.length && item.official_url && isHttpUrl(item.official_url) ? (
-                <a className="action-chip action-chip--primary" href={item.official_url} target="_blank" rel="noreferrer">
-                  Open official source
-                </a>
-              ) : null}
+      {sortedItems.map((item, index) => {
+        const hasExplainability = Boolean(
+          item.category ||
+            item.effort ||
+            item.reason ||
+            item.supporting_finding_ids?.length ||
+            item.supporting_sources?.length ||
+            item.confidence ||
+            item.rule_id ||
+            item.human_review_required ||
+            item.addresses_findings?.length,
+        );
+
+        return (
+          <article key={`${item.action ?? "action"}-${index}`} className="report-card report-card--action">
+            <div className="report-card__title-row">
+              <h4>{item.action ?? "Action"}</h4>
+              <span className="priority-badge">#{item.priority ?? "?"}</span>
             </div>
-          ) : null}
-        </article>
-      ))}
+
+            {item.summary ? <p className="report-card__subcopy">{item.summary}</p> : null}
+
+            {(item.links?.length || (item.official_url && isHttpUrl(item.official_url))) ? (
+              <div className="action-chip-row">
+                {(item.links ?? [])
+                  .filter((link) => isHttpUrl(link.url))
+                  .map((link) => (
+                    <a
+                      key={`${item.action}-${link.url}`}
+                      className="action-chip action-chip--primary"
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {link.label ?? "Open resource"}
+                    </a>
+                  ))}
+                {!item.links?.length && item.official_url && isHttpUrl(item.official_url) ? (
+                  <a className="action-chip action-chip--primary" href={item.official_url} target="_blank" rel="noreferrer">
+                    Open official source
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
+
+            {hasExplainability ? (
+              <details className="action-disclosure">
+                <summary>
+                  <span>Explainability</span>
+                  <span className="action-disclosure__icon">+</span>
+                </summary>
+                <div className="action-disclosure__body">
+                  {item.category || item.effort ? (
+                    <div className="conclusion-badges">
+                      {item.category ? <span className="conclusion-badge">{titleCase(item.category)}</span> : null}
+                      {item.effort ? <span className="conclusion-badge">{titleCase(item.effort)}</span> : null}
+                    </div>
+                  ) : null}
+
+                  {item.addresses_findings?.length ? (
+                    <div className="action-disclosure__list">
+                      <div className="trace-step__detail-label">Addresses findings</div>
+                      <ul className="report-bullet-list">
+                        {item.addresses_findings.slice(0, 5).map((findingRef) => (
+                          <li key={`${item.action}-${findingRef}`}>{findingRef}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+
+                  <ConclusionMeta item={item} findings={findings} options={{ showReason: true, showEvidence: true }} />
+                </div>
+              </details>
+            ) : null}
+          </article>
+        );
+      })}
     </div>
+  );
+}
+
+function GlossarySection({ report }: { report: ResultsReport }) {
+  const actionCategories = Array.from(
+    new Set((report.actions ?? []).map((item) => item.category).filter(Boolean) as string[]),
+  );
+  const efforts = Array.from(
+    new Set((report.actions ?? []).map((item) => item.effort).filter(Boolean) as string[]),
+  );
+
+  const glossaryItems = [
+    {
+      term: "Priority numbers",
+      definition: "Lower numbers indicate the remediation actions Leakipedia recommends doing first, with #1 being the most urgent.",
+    },
+    {
+      term: "Exposure score bands",
+      definition: "1-25 is low urgency, 26-50 signals meaningful exposure, 51-75 indicates high urgency, and 76-100 needs immediate attention.",
+    },
+    {
+      term: "Kill chain",
+      definition: "A step-by-step path showing how exposed data can be turned into misuse, fraud, or account takeover.",
+    },
+    {
+      term: "Attack path",
+      definition: "A concrete route from the exposed information to a harmful outcome.",
+    },
+    {
+      term: "Data exposure",
+      definition: "Score points added when sensitive identity or credential data is confirmed exposed.",
+    },
+    {
+      term: "Attack surfaces",
+      definition: "Score points added when the exposed data enables escalation, impersonation, fraud, or account access.",
+    },
+    {
+      term: "Accessibility",
+      definition: "Score points added when the exposed data is easy for other people to discover or search.",
+    },
+    {
+      term: "Evidence used",
+      definition: "The findings and sources used to support a recommendation, score factor, or conclusion.",
+    },
+    {
+      term: "Complaint template",
+      definition: "Copy-ready language you can adapt when filing a privacy complaint or removal request.",
+    },
+    ...actionCategories.map((category) => ({
+      term: titleCase(category),
+      definition:
+        category === "account_security"
+          ? "A remediation category focused on reducing account takeover, password reuse, or SIM-swap risk."
+          : category === "monitoring"
+            ? "A remediation category focused on alerts, freezes, watchlists, or post-exposure monitoring."
+            : category === "privacy"
+              ? "A remediation category focused on removals, public visibility reduction, and shrinking future collection."
+              : category === "legal"
+                ? "A remediation category focused on complaints, statutory rights, or regulator-facing requests."
+                : "A remediation category used to group related next steps in the report.",
+    })),
+    ...efforts.map((effort) => ({
+      term: titleCase(effort),
+      definition:
+        effort === "quick_win"
+          ? "A relatively fast action that can reduce risk quickly."
+          : effort === "moderate"
+            ? "An action that usually takes some coordination, account access, or follow-through."
+            : effort === "significant"
+              ? "A larger action that may require repeated requests, cleanup, or more time."
+              : "An effort label showing how much work the action may require.",
+    })),
+  ];
+
+  return (
+    <div className="reference-footer">
+      <div className="reference-footer__intro">
+        <p className="eyebrow">Terms and information</p>
+        <h3>Definitions for the score labels, action priorities, and attack-path language used in the report.</h3>
+      </div>
+      <div className="reference-footer__grid">
+        {glossaryItems.map((item) => (
+          <article key={item.term} className="reference-footer__item">
+            <h4>{item.term}</h4>
+            <p>{item.definition}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ExpandableReportSection({
+  title,
+  subtitle,
+  countLabel,
+  icon = "plus",
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  countLabel?: string;
+  icon?: "plus" | "info";
+  children: ReactNode;
+}) {
+  return (
+    <details className={`report-disclosure ${icon === "info" ? "report-disclosure--info" : ""}`}>
+      <summary className="report-disclosure__summary">
+        <div className="report-disclosure__summary-copy">
+          <span
+            className={`report-disclosure__icon ${icon === "info" ? "report-disclosure__icon--info" : ""}`}
+            aria-hidden="true"
+          >
+            {icon === "info" ? "i" : "+"}
+          </span>
+          <div>
+            <p className="eyebrow">{title}</p>
+            <h3>{subtitle}</h3>
+          </div>
+        </div>
+        <div className="report-disclosure__summary-meta">
+          {countLabel ? <span className="summary-pill">{countLabel}</span> : null}
+          <span className="report-disclosure__toggle">Open</span>
+        </div>
+      </summary>
+      <div className="report-disclosure__content">{children}</div>
+    </details>
   );
 }
 
@@ -752,7 +932,6 @@ function ReportSurface({
 }) {
   return (
     <section className={`report-surface ${wide ? "report-surface--wide" : ""} ${scrollable ? "report-surface--scrollable" : ""}`}>
-      <GlowingEffect blur={14} spread={48} glow proximity={116} inactiveZone={0.12} borderWidth={2.7} />
       <div className="report-surface__header">
         <div>
           <p className="eyebrow">{title}</p>
@@ -982,6 +1161,7 @@ export function ResultsApp() {
             auditEntries={state.auditEntries}
             highlightedAuditKey={state.highlightedAuditKey}
             isComplete={Boolean(report)}
+            scanInputs={state.scanInputs ?? report?.inputs ?? null}
           />
 
           <FindingsRail findings={sortedFindings} />
@@ -991,29 +1171,13 @@ export function ResultsApp() {
           <>
             <ReportSummary report={report} />
             <div className="report-grid">
-              <ReportSurface
-                title="Remediation actions"
-                subtitle={`${report.actions?.length ?? 0} prioritized next step${(report.actions?.length ?? 0) === 1 ? "" : "s"} ready to act on`}
-                wide
-                scrollable
+            <ReportSurface
+              title="Remediation actions"
+              subtitle={`${report.actions?.length ?? 0} prioritized next step${(report.actions?.length ?? 0) === 1 ? "" : "s"} ready to act on`}
+              wide
+              scrollable
               >
                 <ActionList items={report.actions ?? []} findings={sortedFindings} />
-              </ReportSurface>
-
-              <ReportSurface
-                title="Decision summary"
-                subtitle={`${report.decision_summary?.length ?? 0} high-level conclusions already grounded in evidence`}
-                scrollable
-              >
-                <DecisionSummaryList items={report.decision_summary ?? []} findings={sortedFindings} />
-              </ReportSurface>
-
-              <ReportSurface
-                title="Kill chains and attack paths"
-                subtitle={`${report.kill_chains?.length ?? 0} path${(report.kill_chains?.length ?? 0) === 1 ? "" : "s"} that explain how data can escalate`}
-                scrollable
-              >
-                <AttackPathList items={report.kill_chains ?? []} findings={sortedFindings} />
               </ReportSurface>
 
               <ReportSurface
@@ -1040,16 +1204,41 @@ export function ResultsApp() {
                 <PrivacyResourceList items={report.privacy_resources ?? []} findings={sortedFindings} />
               </ReportSurface>
             </div>
+            <div className="report-disclosure-stack">
+              <ExpandableReportSection
+                title="Decision summary"
+                subtitle="Higher-level interpretation (LLM reasoning layer)"
+                countLabel={`${report.decision_summary?.length ?? 0} conclusion${(report.decision_summary?.length ?? 0) === 1 ? "" : "s"}`}
+              >
+                <DecisionSummaryList items={report.decision_summary ?? []} findings={sortedFindings} />
+              </ExpandableReportSection>
+
+              <ExpandableReportSection
+                title="Kill chains"
+                subtitle="Escalation paths and attack scenarios"
+                countLabel={`${report.kill_chains?.length ?? 0} path${(report.kill_chains?.length ?? 0) === 1 ? "" : "s"}`}
+              >
+                <AttackPathList items={report.kill_chains ?? []} findings={sortedFindings} />
+              </ExpandableReportSection>
+
+              <ExpandableReportSection
+                title="Terms and information"
+                subtitle="Open the definitions for priorities, score bands, kill-chain labels, and report terminology."
+                icon="info"
+              >
+                <GlossarySection report={report} />
+              </ExpandableReportSection>
+            </div>
           </>
         ) : (
-          <section className="report-placeholder">
-            <p className="eyebrow">Report sections</p>
-            <h2>Summary panels appear automatically when the scan finishes.</h2>
-            <p>
-              The live workspace stays visible while the report is generated, so you can follow the trace without losing
-              context.
-            </p>
-          </section>
+          <ReportLoading
+            statusTitle={state.statusTitle}
+            statusDetail={state.statusDetail}
+            connectionMode={state.connectionMode}
+            currentRound={state.currentRound}
+            findingsCount={state.findings.length}
+            auditEntryCount={state.auditEntries.length}
+          />
         )}
       </main>
 

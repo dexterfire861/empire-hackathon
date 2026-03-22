@@ -1,8 +1,7 @@
-import { groupAuditEntries } from "../lib/results";
-import type { AuditEntry, ConnectionMode } from "../lib/types";
+import { getSubmittedInputItems, groupAuditEntries } from "../lib/results";
+import type { AuditEntry, ConnectionMode, ScanInputs } from "../lib/types";
 import { TextShimmer } from "./TextShimmer";
 import { TraceRoundList } from "./TraceRoundList";
-import { GlowingEffect } from "./ui/glowing-effect";
 
 interface LiveWorkspaceProps {
   statusTitle: string;
@@ -13,6 +12,7 @@ interface LiveWorkspaceProps {
   auditEntries: AuditEntry[];
   highlightedAuditKey: string | null;
   isComplete: boolean;
+  scanInputs: ScanInputs | null;
 }
 
 export function LiveWorkspace({
@@ -24,18 +24,32 @@ export function LiveWorkspace({
   auditEntries,
   highlightedAuditKey,
   isComplete,
+  scanInputs,
 }: LiveWorkspaceProps) {
   const isLive = connectionMode === "live" && !isComplete;
   const rounds = groupAuditEntries(auditEntries);
+  const submittedInputs = getSubmittedInputItems(scanInputs);
 
   return (
     <section className="workspace-panel workspace-panel--primary">
-      <GlowingEffect blur={14} spread={52} glow proximity={120} inactiveZone={0.1} borderWidth={2.8} />
       <div className="workspace-panel__scroll">
         <div className="workspace-panel__intro">
-          <div>
+          <div className="workspace-intro-copy">
             <p className="eyebrow">Live scan workspace</p>
             <h1 className="workspace-title">Track what the agent is testing, confirming, and discarding.</h1>
+            {submittedInputs.length ? (
+              <div className="workspace-inputs">
+                <span className="workspace-inputs__label">Inputs provided</span>
+                <div className="workspace-inputs__list">
+                  {submittedInputs.map((item) => (
+                    <div key={item.label} className="workspace-inputs__item">
+                      <span className="workspace-inputs__item-label">{item.label}</span>
+                      <span className="workspace-inputs__item-value">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
           <div className="workspace-summary">
             <div className="workspace-summary__item">
@@ -47,10 +61,6 @@ export function LiveWorkspace({
               ) : (
                 <span className="workspace-summary__value">{statusTitle}</span>
               )}
-            </div>
-            <div className="workspace-summary__item">
-              <span className="workspace-summary__label">Round</span>
-              <span className="workspace-summary__value">{currentRound == null ? "Setup" : `Round ${currentRound}`}</span>
             </div>
             <div className="workspace-summary__item">
               <span className="workspace-summary__label">Active tool</span>
@@ -67,7 +77,7 @@ export function LiveWorkspace({
 
         <div className="workspace-status-banner">
           <div>
-            <div className="workspace-status-banner__title">{statusTitle}</div>
+            {!isComplete ? <div className="workspace-status-banner__title">{statusTitle}</div> : null}
             <div className="workspace-status-banner__detail">{statusDetail}</div>
           </div>
           <span className={`status-pill status-pill--${connectionMode}`}>

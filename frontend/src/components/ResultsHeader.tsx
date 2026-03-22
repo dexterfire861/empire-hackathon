@@ -42,22 +42,24 @@ export function ResultsHeader({
 
   return (
     <header className="results-header">
-      <div className="results-header__brand-row">
-        <a className="results-header__brand" href="/">
-          <img src="/static/logo-long.png" alt="Leakipedia" />
-        </a>
+      <div className="results-header__status-block">
         <div className="results-header__status">
           <span className={`status-pill status-pill--${connectionMode}`}>{connectionLabel(connectionMode)}</span>
-          {shouldShimmer ? (
-            <TextShimmer as="span" className="results-header__status-text">
-              {statusTitle}
-            </TextShimmer>
-          ) : (
-            <span className="results-header__status-text">{statusTitle}</span>
-          )}
+          {!isComplete ? (
+            shouldShimmer ? (
+              <TextShimmer as="span" className="results-header__status-text">
+                {statusTitle}
+              </TextShimmer>
+            ) : (
+              <span className="results-header__status-text">{statusTitle}</span>
+            )
+          ) : null}
           <span className="results-header__scan-id">Scan {scanId}</span>
         </div>
       </div>
+      <a className="results-header__brand" href="/">
+        <img src="/static/logo-long.png" alt="Leakipedia" />
+      </a>
       <div className="results-header__actions">
         {utilityActions.map((action) => (
           <button

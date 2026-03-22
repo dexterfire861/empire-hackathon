@@ -292,6 +292,7 @@ async def get_scan(scan_id: str):
         "scan_id": state.scan_id,
         "status": state.status.value,
         "findings_count": len(state.findings),
+        "inputs": state.request.model_dump(mode="json"),
         "findings": [f.model_dump(mode="json") for f in state.findings],
         "audit_trail": state.audit_trail,
     }
@@ -338,6 +339,7 @@ async def stream_scan(websocket: WebSocket, scan_id: str):
                 "type": "status",
                 "status": state.status.value,
                 "findings_count": len(state.findings),
+                "inputs": state.request.model_dump(mode="json"),
             }
         )
 

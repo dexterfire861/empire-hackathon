@@ -1,7 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { GlowingEffect } from "./ui/glowing-effect";
 
 interface UtilityOverlayProps {
   open: boolean;
@@ -53,7 +52,6 @@ export function UtilityOverlay({
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
             transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
           >
-            <GlowingEffect blur={18} spread={56} glow proximity={136} inactiveZone={0.12} borderWidth={3} />
             <div className="utility-overlay__header">
               <div>
                 <p className="eyebrow">Quick access</p>

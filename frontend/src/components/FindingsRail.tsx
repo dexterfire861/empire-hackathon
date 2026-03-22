@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import {
   getFindingDetails,
   getFindingDisplaySource,
+  getFindingExposedFields,
   getFindingHighlightTokens,
   getFindingSummary,
   getOptOutUrl,
@@ -14,7 +15,6 @@ import {
   titleCase,
 } from "../lib/results";
 import type { Finding } from "../lib/types";
-import { GlowingEffect } from "./ui/glowing-effect";
 
 interface FindingsRailProps {
   findings: Finding[];
@@ -26,6 +26,7 @@ function FindingRow({ finding }: { finding: Finding }) {
   const source = getFindingDisplaySource(finding);
   const summary = getFindingSummary(finding);
   const details = getFindingDetails(finding);
+  const exposedFields = getFindingExposedFields(finding);
   const highlightTokens = getFindingHighlightTokens(finding);
   const optOutUrl = getOptOutUrl(finding);
   const severe = isSevereFinding(finding);
@@ -46,6 +47,19 @@ function FindingRow({ finding }: { finding: Finding }) {
       </div>
       <div className="finding-row__type">{titleCase(finding.finding_type ?? "exposure signal")}</div>
       <p className="finding-row__summary">{summary}</p>
+
+      {exposedFields.length ? (
+        <div className="finding-row__exposed">
+          <span className="finding-row__exposed-label">Exposed</span>
+          <div className="finding-row__exposed-list">
+            {exposedFields.map((field) => (
+              <span key={`${finding.finding_id ?? source}-${field}`} className="finding-field-chip">
+                {field}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {highlightTokens.length ? (
         <div className="finding-row__tokens">
@@ -112,7 +126,6 @@ function FindingRow({ finding }: { finding: Finding }) {
 export function FindingsRail({ findings }: FindingsRailProps) {
   return (
     <aside className="workspace-panel workspace-panel--secondary">
-      <GlowingEffect blur={14} spread={48} glow proximity={112} inactiveZone={0.08} borderWidth={2.8} />
       <div className="workspace-panel__rail-header">
         <div>
           <p className="eyebrow">Prioritized findings</p>

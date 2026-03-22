@@ -19,16 +19,16 @@ interface GlowingEffectProps {
   borderWidth?: number;
 }
 
-const BLUE_GRADIENT = `radial-gradient(circle at 50% 50%, rgba(220, 247, 255, 0.98) 6%, rgba(220, 247, 255, 0) 18%),
-  radial-gradient(circle at 32% 32%, rgba(154, 223, 255, 0.94) 0%, rgba(154, 223, 255, 0) 22%),
-  radial-gradient(circle at 72% 62%, rgba(61, 161, 255, 0.96) 0%, rgba(61, 161, 255, 0) 25%),
-  radial-gradient(circle at 48% 72%, rgba(20, 102, 229, 0.92) 0%, rgba(20, 102, 229, 0) 24%),
+const BLUE_GRADIENT = `radial-gradient(circle at 50% 50%, rgba(221, 247, 255, 0.98) 6%, rgba(221, 247, 255, 0) 18%),
+  radial-gradient(circle at 32% 32%, rgba(153, 224, 255, 0.94) 0%, rgba(153, 224, 255, 0) 22%),
+  radial-gradient(circle at 72% 62%, rgba(32, 148, 243, 0.96) 0%, rgba(32, 148, 243, 0) 25%),
+  radial-gradient(circle at 48% 72%, rgba(19, 120, 201, 0.92) 0%, rgba(19, 120, 201, 0) 24%),
   repeating-conic-gradient(
     from 236.84deg at 50% 50%,
     #f2fbff 0%,
     #c9eeff 18%,
-    #7fd0ff 42%,
-    #2f9aff 72%,
+    #74cfff 42%,
+    #2094f3 72%,
     #f2fbff 100%
   )`;
 
