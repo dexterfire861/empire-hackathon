@@ -221,6 +221,28 @@
     .severity-low { color: #88cc00; }
     .severity-info { color: #6688cc; }
     .finding-detail { color: #888; font-size: 11px; margin-top: 2px; }
+    .finding-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .finding-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #2a2a3a;
+      background: #10101a;
+      color: #7db6ff;
+      font-size: 11px;
+      text-decoration: none;
+    }
+    .finding-link:hover {
+      border-color: #7db6ff;
+      color: #a8d0ff;
+    }
 
     /* ── Report ── */
     .report-section {
@@ -261,6 +283,68 @@
     .action-priority { color: #00ff88; font-weight: bold; }
     .action-text { color: #e0e0e0; }
     .action-meta { color: #666; font-size: 11px; }
+    .action-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .action-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #2a2a3a;
+      background: #10101a;
+      color: #7db6ff;
+      font-size: 11px;
+      text-decoration: none;
+    }
+    .action-link:hover {
+      border-color: #7db6ff;
+      color: #a8d0ff;
+    }
+    .optout-card {
+      padding: 12px;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .optout-title { color: #e0e0e0; font-weight: bold; }
+    .optout-meta { color: #888; font-size: 11px; margin-top: 4px; }
+    .optout-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .optout-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #2a2a3a;
+      background: #10101a;
+      color: #7db6ff;
+      font-size: 11px;
+      text-decoration: none;
+    }
+    .optout-btn:hover {
+      border-color: #7db6ff;
+      color: #a8d0ff;
+    }
+    .optout-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid #2a2a3a;
+      color: #ffaa00;
+      background: #10101a;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
 
     .source-options {
       margin: 16px 0 20px;
@@ -404,6 +488,11 @@
       <div class="report-panel">
         <div class="panel-header">Remediation Actions</div>
         <div class="panel-body" id="actionsList"></div>
+      </div>
+
+      <div class="report-panel">
+        <div class="panel-header">Opt-Out Targets</div>
+        <div class="panel-body" id="optOutList"></div>
       </div>
 
       <div class="report-panel">
@@ -661,10 +750,28 @@
           if (finding.finding_id) {
             html += `<div class="finding-detail">ID ${escHtml(finding.finding_id)} · ${escHtml(finding.confidence || 'unknown')} confidence</div>`;
           }
-          html += `<div class="finding-detail">${escHtml(finding.source_url)}</div>`;
+          if (finding.source_url) {
+            html += `<div class="finding-detail">${renderLinkText('Source', finding.source_url)}</div>`;
+          }
+
+          const findingLinks = collectFindingLinks(finding);
+          if (findingLinks.length > 0) {
+            html += '<div class="finding-links">';
+            findingLinks.forEach(link => {
+              html += renderLinkChip(link.label, link.url);
+            });
+            html += '</div>';
+          }
 
           if (finding.leads_to && finding.leads_to.length > 0) {
-            html += `<div class="audit-leads">→ ${escHtml(finding.leads_to.slice(0, 3).join(', '))}</div>`;
+            const renderedLeads = finding.leads_to.slice(0, 3).map((lead) => {
+              if (typeof lead === 'string' && lead.startsWith('url:')) {
+                const url = lead.slice(4);
+                return isHttpUrl(url) ? renderLinkText('Lead URL', url) : escHtml(lead);
+              }
+              return escHtml(lead);
+            });
+            html += `<div class="audit-leads">→ ${renderedLeads.join(', ')}</div>`;
           }
 
           div.innerHTML = html;
@@ -715,9 +822,47 @@
         if (action.category || action.effort) {
           html += `<div class="action-meta">${escHtml(action.category || '')} · ${escHtml(action.effort || '')}</div>`;
         }
+        if (Array.isArray(action.links) && action.links.length > 0) {
+          html += '<div class="action-links">';
+          action.links.forEach((link) => {
+            if (!link || !isHttpUrl(link.url)) return;
+            html += `<a class="action-link" href="${escHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escHtml(link.label || 'Open Resource')}</a>`;
+          });
+          html += '</div>';
+        }
         html += '</div>';
         actionsEl.innerHTML += html;
       });
+
+      // Opt-out targets
+      const optOutEl = document.getElementById('optOutList');
+      optOutEl.innerHTML = '';
+      const optOutTargets = collectOptOutTargets(report.findings || []);
+      optOutTargets.forEach((target) => {
+        let html = `<div class="optout-card">`;
+        html += `<div class="optout-title">${escHtml(target.name)}</div>`;
+        html += `<div class="optout-meta">${escHtml(target.description || 'Public-record or broker listing')}</div>`;
+        if (target.dataTypes.length > 0) {
+          html += `<div class="optout-meta">Exposes: ${escHtml(target.dataTypes.join(', '))}</div>`;
+        }
+        if (target.verificationStatus) {
+          html += `<div class="optout-meta">Status: ${escHtml(target.verificationStatus)}</div>`;
+        }
+        html += `<div class="optout-actions">`;
+        if (target.searchUrl) {
+          html += `<a class="optout-btn" href="${escHtml(target.searchUrl)}" target="_blank" rel="noopener noreferrer">View Listing</a>`;
+        }
+        html += `<a class="optout-btn" href="${escHtml(target.optOutUrl)}" target="_blank" rel="noopener noreferrer">Open Opt-Out</a>`;
+        html += `</div>`;
+        if (target.autoCapable) {
+          html += `<div class="optout-badge">Auto-capable</div>`;
+        }
+        html += `</div>`;
+        optOutEl.innerHTML += html;
+      });
+      if (!optOutTargets.length) {
+        optOutEl.innerHTML = '<div style="padding:12px;color:#666">No direct opt-out targets were identified in this scan.</div>';
+      }
 
       // Laws
       const lawsEl = document.getElementById('lawsList');
@@ -769,6 +914,135 @@
       const d = document.createElement('div');
       d.textContent = s;
       return d.innerHTML;
+    }
+
+    function isHttpUrl(value) {
+      return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
+    }
+
+    const KNOWN_BROKER_OPT_OUTS = [
+      { name: 'Whitepages', domains: ['whitepages.com'], optOutUrl: 'https://www.whitepages.com/suppression_requests' },
+      { name: 'Spokeo', domains: ['spokeo.com'], optOutUrl: 'https://www.spokeo.com/optout' },
+      { name: 'BeenVerified', domains: ['beenverified.com'], optOutUrl: 'https://www.beenverified.com/optout/' },
+      { name: 'TruthFinder', domains: ['truthfinder.com'], optOutUrl: 'https://www.truthfinder.com/opt-out/' },
+      { name: 'Intelius', domains: ['intelius.com'], optOutUrl: 'https://app.intelius.com/privacy-center/?' },
+      { name: 'PeopleFinder', domains: ['peoplefinders.com'], optOutUrl: 'https://www.peoplefinders.com/opt-out' },
+      { name: 'Radaris', domains: ['radaris.com'], optOutUrl: 'https://radaris.com/control/privacy' },
+      { name: 'FastPeopleSearch', domains: ['fastpeoplesearch.com'], optOutUrl: 'https://www.fastpeoplesearch.com/removal' },
+      { name: 'Acxiom', domains: ['acxiom.com'], optOutUrl: 'https://isapps.acxiom.com/optout/optout.aspx' },
+      { name: 'Epsilon', domains: ['epsilon.com'], optOutUrl: 'https://legal.epsilon.com/optout' },
+      { name: 'Oracle Advertising', domains: ['oracle.com'], optOutUrl: 'https://www.oracle.com/legal/privacy/privacy-choices/' },
+    ];
+
+    function extractHostname(url) {
+      if (!isHttpUrl(url)) return '';
+      try {
+        return new URL(url).hostname.replace(/^www\./i, '').toLowerCase();
+      } catch (err) {
+        return '';
+      }
+    }
+
+    function inferKnownOptOutTarget(finding) {
+      const data = finding.data || {};
+      const brokerName = String(data.broker_name || '').toLowerCase();
+      const title = String(data.title || '').toLowerCase();
+      const hostname = extractHostname(data.search_url || finding.source_url || data.link || '');
+      return KNOWN_BROKER_OPT_OUTS.find((entry) => {
+        const nameMatch = brokerName && entry.name.toLowerCase() === brokerName;
+        const titleMatch = title && title.includes(entry.name.toLowerCase());
+        const domainMatch = hostname && entry.domains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
+        return nameMatch || titleMatch || domainMatch;
+      }) || null;
+    }
+
+    function formatLinkLabel(key) {
+      return String(key || 'Link')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+
+    function renderLinkText(label, url) {
+      if (!isHttpUrl(url)) return escHtml(String(url || ''));
+      return `<a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer" style="color:#7db6ff;text-decoration:none">${escHtml(label)}</a> · <span>${escHtml(url)}</span>`;
+    }
+
+    function renderLinkChip(label, url) {
+      return `<a class="finding-link" href="${escHtml(url)}" target="_blank" rel="noopener noreferrer">${escHtml(label)}</a>`;
+    }
+
+    function collectFindingLinks(finding) {
+      const links = [];
+      const seen = new Set();
+
+      function pushLink(label, url) {
+        if (!isHttpUrl(url)) return;
+        const trimmed = url.trim();
+        if (!trimmed || trimmed === (finding.source_url || '').trim() || seen.has(trimmed)) return;
+        seen.add(trimmed);
+        links.push({ label, url: trimmed });
+      }
+
+      function walk(value, keyPath = []) {
+        if (!value) return;
+        if (typeof value === 'string') {
+          if (isHttpUrl(value)) {
+            const key = keyPath[keyPath.length - 1] || 'Link';
+            pushLink(formatLinkLabel(key), value);
+          }
+          return;
+        }
+        if (Array.isArray(value)) {
+          value.forEach((item) => walk(item, keyPath));
+          return;
+        }
+        if (typeof value === 'object') {
+          Object.entries(value).forEach(([key, item]) => {
+            walk(item, [...keyPath, key]);
+          });
+        }
+      }
+
+      walk(finding.data || {});
+      return links.slice(0, 8);
+    }
+
+    function collectOptOutTargets(findings) {
+      const byKey = new Map();
+
+      (findings || []).forEach((finding) => {
+        if (!finding || finding.finding_type !== 'data_broker_listing') return;
+        const data = finding.data || {};
+        const knownTarget = inferKnownOptOutTarget(finding);
+        const optOutUrl = isHttpUrl(data.opt_out_url) ? data.opt_out_url : (knownTarget ? knownTarget.optOutUrl : '');
+        if (!isHttpUrl(optOutUrl)) return;
+
+        const name = data.broker_name || (knownTarget ? knownTarget.name : '') || data.title || finding.source || 'Unknown source';
+        const key = `${name}::${optOutUrl}`;
+        const current = byKey.get(key);
+        const next = {
+          name,
+          description: data.description || '',
+          optOutUrl: optOutUrl.trim(),
+          searchUrl: data.search_url || finding.source_url || '',
+          verificationStatus: data.verification_status || '',
+          dataTypes: Array.isArray(data.data_types_exposed) ? data.data_types_exposed : [],
+          autoCapable: Boolean(data.auto_opt_out_supported || data.remediation_mode === 'automatic'),
+        };
+
+        if (!current) {
+          byKey.set(key, next);
+          return;
+        }
+
+        current.dataTypes = Array.from(new Set([...(current.dataTypes || []), ...(next.dataTypes || [])]));
+        if (!current.description && next.description) current.description = next.description;
+        if (!current.searchUrl && next.searchUrl) current.searchUrl = next.searchUrl;
+        if (!current.verificationStatus && next.verificationStatus) current.verificationStatus = next.verificationStatus;
+        current.autoCapable = current.autoCapable || next.autoCapable;
+      });
+
+      return Array.from(byKey.values()).sort((a, b) => a.name.localeCompare(b.name));
     }
 
     function formatEntryType(entryType) {

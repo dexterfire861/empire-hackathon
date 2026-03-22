@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional
+from urllib.parse import urlparse
 
 from Leakipedia.agent.schemas import Finding
 
@@ -92,7 +93,86 @@ STATE_ABBREVIATIONS: dict[str, str] = {
     "colorado": "CO",
     "connecticut": "CT",
     "texas": "TX",
+    "utah": "UT",
+    "oregon": "OR",
+    "montana": "MT",
+    "delaware": "DE",
+    "new jersey": "NJ",
+    "new hampshire": "NH",
+    "maryland": "MD",
+    "minnesota": "MN",
+    "nebraska": "NE",
+    "kentucky": "KY",
+    "rhode island": "RI",
+    "tennessee": "TN",
+    "indiana": "IN",
+    "iowa": "IA",
+    "florida": "FL",
 }
+
+STATE_PRIVACY_COMPLAINTS: dict[str, dict] = {
+    "CA": {"label": "California (CPPA)", "url": "https://cppa.ca.gov/webapplications/complaint"},
+    "TX": {"label": "Texas (TDPSA)", "url": "https://www.texasattorneygeneral.gov/consumer-protection/file-consumer-complaint/consumer-privacy-rights"},
+    "CO": {"label": "Colorado (CPA)", "url": "https://coag.gov/resources/colorado-privacy-act/"},
+    "VA": {"label": "Virginia (VCDPA)", "url": "https://www.oag.state.va.us/consumer-protection/index.php/file-a-complaint"},
+    "CT": {"label": "Connecticut (CTDPA)", "url": "https://www.dir.ct.gov/ag/complaint/"},
+    "UT": {"label": "Utah (UCPA)", "url": "https://attorneygeneral.utah.gov/contact/complaint-form/"},
+    "OR": {"label": "Oregon (OCPA)", "url": "https://justice.oregon.gov/consumercomplaints/"},
+    "MT": {"label": "Montana (MCDPA)", "url": "https://dojmt.gov/office-of-consumer-protection/consumer-complaints/"},
+    "DE": {"label": "Delaware (DPDPA)", "url": "https://attorneygeneral.delaware.gov/fraud/cmu/complaint/"},
+    "NJ": {"label": "New Jersey (NJDPA)", "url": "https://www.njconsumeraffairs.gov/Pages/Consumer-Complaints.aspx"},
+    "NH": {"label": "New Hampshire (NHPA)", "url": "https://www.doj.nh.gov/consumer/complaints/index.htm"},
+    "MD": {"label": "Maryland (MODPA)", "url": "https://www.marylandattorneygeneral.gov/Pages/CPD/Complaint.aspx"},
+    "MN": {"label": "Minnesota (MCDPA)", "url": "https://www.ag.state.mn.us/Office/Forms/ConsumerAssistanceRequest.asp"},
+    "NE": {"label": "Nebraska (NDPA)", "url": "https://www.nebraska.gov/apps-ago-complaints/?preSelect=CP_COMPLAINT"},
+    "KY": {"label": "Kentucky (KCDPA)", "url": "https://www.ag.ky.gov/Resources/Consumer-Resources/Consumers/Pages/Consumer-Complaints.aspx"},
+    "RI": {"label": "Rhode Island (RI-DTPPA)", "url": "https://riag.ri.gov/forms/consumer-complaint"},
+    "TN": {"label": "Tennessee (TIPA)", "url": "https://www.tn.gov/attorneygeneral/working-for-tennessee/consumer/file-a-complaint.html"},
+    "IN": {"label": "Indiana (INCDPA)", "url": "https://www.in.gov/attorneygeneral/consumer-protection-division/file-a-complaint/"},
+    "IA": {"label": "Iowa (ICDPA)", "url": "https://www.iowaattorneygeneral.gov/for-consumers/file-a-consumer-complaint"},
+    "FL": {"label": "Florida (FDBR / consumer complaint)", "url": "https://www.myfloridalegal.com/how-to-contact-us/file-a-complaint"},
+}
+
+PASSWORD_GUIDANCE_LINKS = [
+    {"label": "NIST Password Guidance", "url": "https://pages.nist.gov/800-63-3/sp800-63b.html"},
+    {"label": "CISA Password Best Practices", "url": "https://www.cisa.gov/secure-our-world/use-strong-passwords"},
+]
+
+MFA_GUIDANCE_LINKS = [
+    {"label": "CISA MFA Guide", "url": "https://www.cisa.gov/mfa"},
+    {"label": "NIST Digital Identity Guidelines", "url": "https://pages.nist.gov/800-63-3/"},
+]
+
+CREDIT_FREEZE_LINKS = [
+    {"label": "FTC Credit Freeze Guide", "url": "https://consumer.ftc.gov/articles/what-know-about-credit-freezes-fraud-alerts"},
+    {"label": "CFPB Credit Freeze Guide", "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-a-credit-freeze-en-349/"},
+]
+
+GOOGLE_REMOVAL_LINKS = [
+    {"label": "Google Results About You", "url": "https://support.google.com/websearch/answer/12719076"},
+    {"label": "Google Removal Request Form", "url": "https://support.google.com/websearch/troubleshooter/3111061"},
+]
+
+EMAIL_ALIAS_LINKS = [
+    {"label": "Apple Hide My Email", "url": "https://support.apple.com/en-us/HT210425"},
+    {"label": "SimpleLogin Alias Guide", "url": "https://simplelogin.io/docs/"},
+]
+
+BROWSER_PRIVACY_LINKS = [
+    {"label": "Global Privacy Control", "url": "https://globalprivacycontrol.org/"},
+    {"label": "Privacy Badger", "url": "https://privacybadger.org/"},
+]
+
+MARKETING_OPT_OUT_LINKS = [
+    {"label": "Acxiom Opt-Out", "url": "https://isapps.acxiom.com/optout/optout.aspx"},
+    {"label": "Epsilon Opt-Out", "url": "https://legal.epsilon.com/optout"},
+    {"label": "Oracle Advertising Privacy Choices", "url": "https://www.oracle.com/legal/privacy/privacy-choices/"},
+]
+
+BROKER_HELPER_LINKS = [
+    {"label": "Consumer Reports Permission Slip", "url": "https://permissionslipcr.com/"},
+    {"label": "EPIC Data Broker Resources", "url": "https://epic.org/issues/consumer-privacy/data-brokers/"},
+]
 
 
 def _resolve_state(location: Optional[str]) -> Optional[str]:
@@ -108,6 +188,64 @@ def _resolve_state(location: Optional[str]) -> Optional[str]:
     return None
 
 
+def _dedupe_links(links: list[dict]) -> list[dict]:
+    seen: set[str] = set()
+    unique: list[dict] = []
+    for link in links:
+        url = str(link.get("url", "")).strip()
+        label = str(link.get("label", "")).strip()
+        if not url or not label or url in seen:
+            continue
+        seen.add(url)
+        unique.append({"label": label, "url": url})
+    return unique
+
+
+def _broker_label(finding: Finding) -> str:
+    broker_name = str(finding.data.get("broker_name", "")).strip()
+    if broker_name:
+        return broker_name
+    source_url = str(finding.source_url or "").strip()
+    if source_url.startswith("http"):
+        hostname = urlparse(source_url).netloc.replace("www.", "")
+        if hostname:
+            return hostname
+    return finding.source
+
+
+def _collect_broker_opt_out_links(findings: list[Finding]) -> list[dict]:
+    links: list[dict] = []
+    for finding in findings:
+        opt_out_url = str(finding.data.get("opt_out_url", "")).strip()
+        if not opt_out_url.startswith("http"):
+            continue
+        links.append(
+            {
+                "label": f"{_broker_label(finding)} Opt-Out",
+                "url": opt_out_url,
+            }
+        )
+    return _dedupe_links(links)
+
+
+def _breach_has_sensitive_identity_data(finding: Finding) -> bool:
+    data_classes = [str(dc).lower() for dc in finding.data.get("data_classes", [])]
+    sensitive_keywords = (
+        "password",
+        "credential",
+        "physical address",
+        "phone",
+        "date of birth",
+        "dob",
+        "government",
+        "ssn",
+        "social security",
+        "driver",
+        "identity",
+    )
+    return any(keyword in dc for dc in data_classes for keyword in sensitive_keywords)
+
+
 def generate_actions(
     findings: list[Finding], location: Optional[str] = None
 ) -> list[dict]:
@@ -121,6 +259,25 @@ def generate_actions(
     document_findings = [f for f in findings if f.finding_type == "document"]
     domain_findings = [f for f in findings if f.finding_type == "domain_registration"]
     broker_findings = [f for f in findings if f.finding_type == "data_broker_listing"]
+    google_findings = [f for f in findings if f.source == "google_search"]
+    state = _resolve_state(location)
+    complaint_portal = STATE_PRIVACY_COMPLAINTS.get(state or "")
+    broker_opt_out_links = _collect_broker_opt_out_links(broker_findings)
+    marketing_sale_findings = [
+        f
+        for f in broker_findings
+        if f.source == "haveibeensold" and f.data.get("email_sold") is True
+    ]
+    sensitive_identity_findings = [
+        f
+        for f in findings
+        if (
+            f.finding_type == "breach"
+            and _breach_has_sensitive_identity_data(f)
+        )
+        or (f.finding_type == "data_broker_listing" and f.severity == "high")
+        or (f.finding_type == "document" and f.data.get("has_gps"))
+    ]
 
     # Password breaches — highest priority
     password_breaches = [
@@ -140,6 +297,7 @@ def generate_actions(
                 "category": "password",
                 "effort": "quick_win",
                 "addresses_findings": [f"breach:{n}" for n in breach_names],
+                "links": PASSWORD_GUIDANCE_LINKS,
             }
         )
         priority += 1
@@ -156,6 +314,7 @@ def generate_actions(
                     f"account:{f.data.get('site', f.source_url)}"
                     for f in account_findings[:5]
                 ],
+                "links": MFA_GUIDANCE_LINKS,
             }
         )
         priority += 1
@@ -172,6 +331,20 @@ def generate_actions(
                 "addresses_findings": [
                     f"breach:{f.data.get('breach_name', '')}" for f in other_breaches
                 ],
+                "links": CREDIT_FREEZE_LINKS,
+            }
+        )
+        priority += 1
+
+    if sensitive_identity_findings:
+        actions.append(
+            {
+                "priority": priority,
+                "action": "Freeze your credit and review fraud-alert options to reduce identity-theft risk from exposed address, phone, password, or public-record data.",
+                "category": "monitoring",
+                "effort": "moderate",
+                "addresses_findings": [f.source_url for f in sensitive_identity_findings[:5]],
+                "links": CREDIT_FREEZE_LINKS,
             }
         )
         priority += 1
@@ -230,6 +403,38 @@ def generate_actions(
                 "category": "privacy",
                 "effort": "significant",
                 "addresses_findings": [f.source_url for f in broker_findings[:5]],
+                "links": _dedupe_links(broker_opt_out_links + BROKER_HELPER_LINKS),
+            }
+        )
+        priority += 1
+
+    if marketing_sale_findings:
+        actions.append(
+            {
+                "priority": priority,
+                "action": "Opt out of major marketing-data aggregators and ad-tech brokers linked to email resale activity.",
+                "category": "privacy",
+                "effort": "moderate",
+                "addresses_findings": [f.source_url for f in marketing_sale_findings[:3]],
+                "links": _dedupe_links(MARKETING_OPT_OUT_LINKS + BROKER_HELPER_LINKS),
+            }
+        )
+        priority += 1
+
+    if complaint_portal and broker_findings:
+        actions.append(
+            {
+                "priority": priority,
+                "action": f"File a {complaint_portal['label']} privacy complaint if a broker ignores your opt-out or continues exposing your data after removal requests.",
+                "category": "legal",
+                "effort": "moderate",
+                "addresses_findings": [f.source_url for f in broker_findings[:5]],
+                "links": [
+                    {
+                        "label": f"Open {complaint_portal['label']} complaint form",
+                        "url": complaint_portal["url"],
+                    }
+                ],
             }
         )
         priority += 1
@@ -253,7 +458,6 @@ def generate_actions(
         priority += 1
 
     # Google results
-    google_findings = [f for f in findings if f.source == "google_search"]
     if google_findings:
         actions.append(
             {
@@ -262,6 +466,33 @@ def generate_actions(
                 "category": "monitoring",
                 "effort": "quick_win",
                 "addresses_findings": [f.source_url for f in google_findings[:3]],
+                "links": GOOGLE_REMOVAL_LINKS,
+            }
+        )
+        priority += 1
+
+    if breach_findings or marketing_sale_findings or account_findings:
+        actions.append(
+            {
+                "priority": priority,
+                "action": "Use email aliases for future signups so new exposures do not reveal your primary inbox.",
+                "category": "privacy",
+                "effort": "quick_win",
+                "addresses_findings": [f"email:{f.original_input}" for f in findings if f.input_used == "email"][:5],
+                "links": EMAIL_ALIAS_LINKS,
+            }
+        )
+        priority += 1
+
+    if broker_findings or marketing_sale_findings or google_findings:
+        actions.append(
+            {
+                "priority": priority,
+                "action": "Enable browser privacy controls like Global Privacy Control and tracker blocking to reduce future data sale and advertising exposure.",
+                "category": "privacy",
+                "effort": "quick_win",
+                "addresses_findings": [f.source_url for f in (broker_findings[:3] or google_findings[:3])],
+                "links": BROWSER_PRIVACY_LINKS,
             }
         )
         priority += 1
