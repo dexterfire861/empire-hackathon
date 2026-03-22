@@ -80,6 +80,11 @@ async def index():
     return FileResponse(STATIC_DIR / "index.html")
 
 
+@app.get("/results")
+async def results():
+    return FileResponse(STATIC_DIR / "results.html")
+
+
 @app.get("/extension/install")
 async def extension_install():
     return HTMLResponse(

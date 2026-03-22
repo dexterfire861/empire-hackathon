@@ -12,8 +12,7 @@
       color: #e0e0e0;
       min-height: 100vh;
     }
-    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
-
+    .container { max-width: 760px; margin: 0 auto; padding: 24px; }
     h1 {
       font-size: 28px;
       color: #00ff88;
@@ -28,9 +27,7 @@
       gap: 16px;
       margin-bottom: 24px;
     }
-    .header-copy {
-      flex: 1;
-    }
+    .header-copy { flex: 1; }
     .install-btn {
       display: inline-flex;
       align-items: center;
@@ -50,8 +47,16 @@
       border-color: #00ff88;
       color: #00ff88;
     }
-
-    /* ── Form ── */
+    .intro-card {
+      background: #101018;
+      border: 1px solid #1a1a2e;
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 20px;
+      color: #9aa0b5;
+      line-height: 1.6;
+      font-size: 13px;
+    }
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -59,7 +64,14 @@
       margin-bottom: 16px;
     }
     .form-grid.full { grid-template-columns: 1fr; }
-    label { display: block; color: #888; font-size: 11px; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 1px; }
+    label {
+      display: block;
+      color: #888;
+      font-size: 11px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+    }
     input {
       width: 100%;
       padding: 10px 12px;
@@ -72,7 +84,6 @@
     }
     input:focus { outline: none; border-color: #00ff88; }
     input::placeholder { color: #444; }
-
     button#scanBtn {
       width: 100%;
       padding: 12px;
@@ -85,314 +96,26 @@
       font-weight: bold;
       cursor: pointer;
       letter-spacing: 1px;
-      margin-bottom: 24px;
+      margin-top: 8px;
     }
     button#scanBtn:hover { background: #00cc6a; }
     button#scanBtn:disabled { background: #333; color: #666; cursor: not-allowed; }
-
-    /* ── Status Bar ── */
-    .status-bar {
-      display: none;
-      padding: 12px 16px;
-      background: #141420;
-      border: 1px solid #2a2a3a;
-      border-radius: 6px;
-      margin-bottom: 16px;
-      font-size: 13px;
-    }
-    .status-bar .status-text { color: #00ff88; }
-    .status-bar .stats { color: #888; margin-top: 4px; }
-
-    /* ── Panels ── */
-    .panels {
-      display: none;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .panel {
-      background: #141420;
-      border: 1px solid #2a2a3a;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-    .panel-header {
-      padding: 10px 16px;
-      background: #1a1a2e;
-      border-bottom: 1px solid #2a2a3a;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #888;
-    }
-    .panel-body {
-      padding: 12px;
-      max-height: 500px;
-      overflow-y: auto;
+    .form-note {
+      margin-top: 12px;
+      color: #666;
       font-size: 12px;
       line-height: 1.6;
     }
-
-    /* ── Audit Trail ── */
-    .audit-entry {
-      padding: 8px 0;
-      border-bottom: 1px solid #1a1a2e;
-    }
-    .audit-entry:last-child { border-bottom: none; }
-    .trace-entry-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .audit-step { color: #00ff88; font-weight: bold; }
-    .audit-action { color: #e0e0e0; }
-    .audit-result { color: #888; font-size: 11px; margin-top: 2px; }
-    .audit-leads { color: #ffaa00; font-size: 11px; }
-    .audit-reasoning { color: #666; font-size: 11px; font-style: italic; }
-    .trace-type {
-      display: inline-block;
-      padding: 1px 6px;
-      border-radius: 999px;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      border: 1px solid #2a2a3a;
-      color: #9aa0b5;
-      background: #10101a;
-    }
-    .trace-round {
-      color: #7c7c90;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-    .trace-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 6px;
-    }
-    .trace-pill {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 999px;
-      border: 1px solid #2a2a3a;
-      color: #c8ccdb;
-      background: #10101a;
-      font-size: 10px;
-    }
-    .trace-block {
-      margin-top: 6px;
-      font-size: 11px;
-      color: #9aa0b5;
-    }
-    .trace-block strong {
-      color: #c8ccdb;
-      font-weight: 600;
-    }
-    .trace-list {
-      margin-top: 4px;
-      color: #888;
-    }
-    .trace-list-item {
-      margin-top: 2px;
-      padding-left: 12px;
-      position: relative;
-    }
-    .trace-list-item::before {
-      content: "•";
-      position: absolute;
-      left: 0;
-      color: #6688cc;
-    }
-    .trace-connection { color: #7db6ff; font-size: 11px; margin-top: 6px; }
-    .trace-confidence { color: #ffaa00; font-size: 11px; margin-top: 4px; }
-
-    /* ── Findings ── */
-    .finding-entry {
-      padding: 8px 0;
-      border-bottom: 1px solid #1a1a2e;
-    }
-    .finding-entry:last-child { border-bottom: none; }
-    .finding-source { font-weight: bold; }
-    .severity-critical { color: #ff3333; }
-    .severity-high { color: #ff6600; }
-    .severity-medium { color: #ffaa00; }
-    .severity-low { color: #88cc00; }
-    .severity-info { color: #6688cc; }
-    .finding-detail { color: #888; font-size: 11px; margin-top: 2px; }
-    .finding-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .finding-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid #2a2a3a;
-      background: #10101a;
-      color: #7db6ff;
-      font-size: 11px;
-      text-decoration: none;
-    }
-    .finding-link:hover {
-      border-color: #7db6ff;
-      color: #a8d0ff;
-    }
-
-    /* ── Report ── */
-    .report-section {
+    .error-box {
       display: none;
       margin-top: 16px;
-    }
-    .report-panel {
-      background: #141420;
-      border: 1px solid #2a2a3a;
-      border-radius: 6px;
-      overflow: hidden;
-      margin-bottom: 16px;
-    }
-    .score-display {
-      text-align: center;
-      padding: 24px;
-      font-size: 48px;
-      font-weight: bold;
-    }
-    .score-low { color: #00ff88; }
-    .score-med { color: #ffaa00; }
-    .score-high { color: #ff6600; }
-    .score-crit { color: #ff3333; }
-    .score-label { font-size: 13px; color: #888; margin-top: 4px; }
-
-    .kill-chain {
-      padding: 12px;
-      border-bottom: 1px solid #1a1a2e;
-    }
-    .kill-chain-name { color: #ff6600; font-weight: bold; }
-    .kill-chain-step { color: #ccc; padding-left: 16px; margin-top: 4px; }
-    .kill-chain-step::before { content: "→ "; color: #ff6600; }
-
-    .action-item {
-      padding: 8px 12px;
-      border-bottom: 1px solid #1a1a2e;
-    }
-    .action-priority { color: #00ff88; font-weight: bold; }
-    .action-text { color: #e0e0e0; }
-    .action-meta { color: #666; font-size: 11px; }
-    .action-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .action-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 10px;
-      border-radius: 6px;
-      border: 1px solid #2a2a3a;
-      background: #10101a;
-      color: #7db6ff;
-      font-size: 11px;
-      text-decoration: none;
-    }
-    .action-link:hover {
-      border-color: #7db6ff;
-      color: #a8d0ff;
-    }
-    .optout-card {
-      padding: 12px;
-      border-bottom: 1px solid #1a1a2e;
-    }
-    .optout-title { color: #e0e0e0; font-weight: bold; }
-    .optout-meta { color: #888; font-size: 11px; margin-top: 4px; }
-    .optout-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .optout-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 10px;
-      border-radius: 6px;
-      border: 1px solid #2a2a3a;
-      background: #10101a;
-      color: #7db6ff;
-      font-size: 11px;
-      text-decoration: none;
-    }
-    .optout-btn:hover {
-      border-color: #7db6ff;
-      color: #a8d0ff;
-    }
-    .optout-badge {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 2px 7px;
-      border-radius: 999px;
-      border: 1px solid #2a2a3a;
-      color: #ffaa00;
-      background: #10101a;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-
-    .source-options {
-      margin: 16px 0 20px;
-      padding: 12px;
-      border: 1px solid #1a1a2e;
-      background: #0d0d18;
-      border-radius: 4px;
-    }
-    .source-options-title {
-      color: #6688cc;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid #5c2222;
+      background: #1a1010;
+      color: #ff8f8f;
       font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
     }
-    .source-option {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      margin: 8px 0;
-      color: #ccc;
-      font-size: 13px;
-    }
-    .source-option input {
-      margin-top: 2px;
-    }
-    .source-option span {
-      color: #7c7c90;
-      font-size: 11px;
-      display: block;
-      margin-top: 2px;
-    }
-
-    pre.json-block {
-      background: #0d0d18;
-      padding: 12px;
-      border-radius: 4px;
-      overflow-x: auto;
-      font-size: 11px;
-      color: #aaa;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    /* scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #0a0a0f; }
-    ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 3px; }
   </style>
 </head>
 <body>
@@ -405,7 +128,10 @@
       <a class="install-btn" href="/extension/install">Install Leak Prevent</a>
     </div>
 
-    <!-- Input Form -->
+    <div class="intro-card">
+      Enter a few identifiers and Leakipedia will start a scan, then open a dedicated results page for the live trace and final report.
+    </div>
+
     <div class="form-grid">
       <div>
         <label>Full Name *</label>
@@ -432,646 +158,62 @@
         <input type="text" id="location" placeholder="New York">
       </div>
     </div>
-    <div class="source-options">
-      <div class="source-options-title">Optional Limited Sources</div>
-      <label class="source-option">
-        <input type="checkbox" id="useEmailRep">
-        <div>EmailRep
-          <span>Off by default because it can rate-limit heavily.</span>
-        </div>
-      </label>
-      <label class="source-option">
-        <input type="checkbox" id="useBreachDirectory">
-        <div>BreachDirectory (RapidAPI)
-          <span>Only runs when checked and when BREACHDIRECTORY_RAPIDAPI_KEY is set.</span>
-        </div>
-      </label>
-      <label class="source-option">
-        <input type="checkbox" id="useIntelX">
-        <div>IntelX
-          <span>Only runs when checked and when INTELX_API_KEY is set.</span>
-        </div>
-      </label>
-    </div>
+
     <button id="scanBtn" onclick="startScan()">SCAN FOR EXPOSURE</button>
-
-    <!-- Status Bar -->
-    <div class="status-bar" id="statusBar">
-      <div class="status-text" id="statusText">Initializing...</div>
-      <div class="stats" id="statsText"></div>
-    </div>
-
-    <!-- Live Panels -->
-    <div class="panels" id="panels">
-      <div class="panel">
-        <div class="panel-header">Decision Trace (Live)</div>
-        <div class="panel-body" id="auditTrail"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-header">Findings (<span id="findingsCount">0</span>)</div>
-        <div class="panel-body" id="findingsList"></div>
-      </div>
-    </div>
-
-    <!-- Final Report -->
-    <div class="report-section" id="reportSection">
-      <div class="report-panel">
-        <div class="panel-header">Exposure Score</div>
-        <div class="score-display" id="scoreDisplay">—</div>
-      </div>
-
-      <div class="report-panel">
-        <div class="panel-header">Kill Chains — Attack Paths</div>
-        <div class="panel-body" id="killChains"></div>
-      </div>
-
-      <div class="report-panel">
-        <div class="panel-header">Remediation Actions</div>
-        <div class="panel-body" id="actionsList"></div>
-      </div>
-
-      <div class="report-panel">
-        <div class="panel-header">Opt-Out Targets</div>
-        <div class="panel-body" id="optOutList"></div>
-      </div>
-
-      <div class="report-panel">
-        <div class="panel-header">Applicable Laws</div>
-        <div class="panel-body" id="lawsList"></div>
-      </div>
-
-      <div class="report-panel">
-        <div class="panel-header">Full Report JSON</div>
-        <div class="panel-body"><pre class="json-block" id="fullJson"></pre></div>
-      </div>
-    </div>
+    <div class="form-note">You'll be redirected to a separate results page as soon as the scan starts.</div>
+    <div class="error-box" id="errorBox"></div>
   </div>
 
   <script>
-    let ws = null;
-    let findingsCount = 0;
-    let findingsData = [];
+    function showError(message) {
+      var errorBox = document.getElementById('errorBox');
+      errorBox.textContent = message;
+      errorBox.style.display = 'block';
+    }
 
     async function startScan() {
-      const fullName = document.getElementById('fullName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const username = document.getElementById('username').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const location = document.getElementById('location').value.trim();
-      const useEmailRep = document.getElementById('useEmailRep').checked;
-      const useBreachDirectory = document.getElementById('useBreachDirectory').checked;
-      const useIntelX = document.getElementById('useIntelX').checked;
+      var fullName = document.getElementById('fullName').value.trim();
+      var email = document.getElementById('email').value.trim();
+      var username = document.getElementById('username').value.trim();
+      var phone = document.getElementById('phone').value.trim();
+      var location = document.getElementById('location').value.trim();
 
       if (!fullName) { alert('Full name is required'); return; }
       if (!email && !username && !phone) { alert('At least one of email, username, or phone is required'); return; }
 
-      const btn = document.getElementById('scanBtn');
+      var btn = document.getElementById('scanBtn');
+      var errorBox = document.getElementById('errorBox');
       btn.disabled = true;
-      btn.textContent = 'SCANNING...';
+      btn.textContent = 'STARTING...';
+      errorBox.style.display = 'none';
 
-      // Reset UI
-      findingsCount = 0;
-      findingsData = [];
-      document.getElementById('auditTrail').innerHTML = '';
-      document.getElementById('findingsList').innerHTML = '';
-      document.getElementById('findingsCount').textContent = '0';
-      document.getElementById('reportSection').style.display = 'none';
-      document.getElementById('statusBar').style.display = 'block';
-      document.getElementById('panels').style.display = 'grid';
-      setStatus('Starting scan...', '');
-
-      // Build request
-      const body = { full_name: fullName };
+      var body = { full_name: fullName };
       if (email) body.email = email;
       if (username) body.username = username;
       if (phone) body.phone = phone;
       if (location) body.location = location;
-      if (useEmailRep) body.use_emailrep = true;
-      if (useBreachDirectory) body.use_breachdirectory = true;
-      if (useIntelX) body.use_intelx = true;
 
       try {
-        const resp = await fetch('/scan', {
+        var resp = await fetch('/scan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
-        const data = await resp.json();
-        if (!data.scan_id) { throw new Error('No scan_id returned'); }
 
-        setStatus(`Scan started: ${data.scan_id}`, 'Connecting to live stream...');
-        connectWebSocket(data.scan_id);
+        var data = await resp.json();
+        if (!resp.ok) {
+          throw new Error(data.detail || data.message || 'Unable to start scan');
+        }
+        if (!data.scan_id) {
+          throw new Error('No scan ID returned');
+        }
+
+        window.location.href = '/results?scan_id=' + encodeURIComponent(data.scan_id);
       } catch (err) {
-        setStatus(`Error: ${err.message}`, '');
+        showError(err.message || 'Unable to start scan');
         btn.disabled = false;
         btn.textContent = 'SCAN FOR EXPOSURE';
       }
-    }
-
-    function connectWebSocket(scanId) {
-      const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-      ws = new WebSocket(`${proto}://${location.host}/scan/${scanId}/stream`);
-
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        handleEvent(data, scanId);
-      };
-
-      ws.onerror = () => {
-        setStatus('WebSocket error — polling for results...', '');
-        // Fallback: poll the API
-        pollResults(scanId);
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket closed');
-      };
-    }
-
-    function handleEvent(event, scanId) {
-      switch (event.type) {
-        case 'status':
-          setStatus(`Status: ${event.status}`, `Findings so far: ${event.findings_count || 0}`);
-          break;
-
-        case 'scan_started':
-          setStatus(`Scan running (${event.sources_count} tools available)`, 'Round 1 starting...');
-          break;
-
-        case 'round_start':
-          setStatus(`Round ${event.round} in progress...`, `Findings: ${findingsCount}`);
-          break;
-
-        case 'tool_call':
-          setStatus(`Calling ${event.tool}...`, `Findings: ${findingsCount}`);
-          break;
-
-        case 'tool_result':
-          break;
-
-        case 'finding':
-          findingsCount++;
-          document.getElementById('findingsCount').textContent = findingsCount;
-          addFinding(event.finding);
-          break;
-
-        case 'audit_step':
-          addAuditEntry(event.step);
-          break;
-
-        case 'round_complete':
-          setStatus(
-            `Round ${event.round} complete`,
-            `Total findings: ${event.findings_count}, New leads: ${event.new_leads}`
-          );
-          break;
-
-        case 'risk_assessment':
-          setStatus(`Risk assessment complete`, `Score: ${event.score}/100`);
-          break;
-
-        case 'scan_complete':
-          setStatus(`Scan complete`, `Final report ready`);
-          showReport(event.report);
-          document.getElementById('scanBtn').disabled = false;
-          document.getElementById('scanBtn').textContent = 'SCAN FOR EXPOSURE';
-          if (ws) ws.close();
-          break;
-
-        case 'error':
-          setStatus(`Error: ${event.message}`, '');
-          // Still try to fetch whatever report exists
-          fetchReport(scanId);
-          document.getElementById('scanBtn').disabled = false;
-          document.getElementById('scanBtn').textContent = 'SCAN FOR EXPOSURE';
-          break;
-
-        case 'ping':
-          break;
-      }
-    }
-
-    function setStatus(text, stats) {
-      document.getElementById('statusText').textContent = text;
-      document.getElementById('statsText').textContent = stats;
-    }
-
-    function addAuditEntry(entry) {
-      const div = document.createElement('div');
-      div.className = 'audit-entry';
-
-      const entryType = formatEntryType(entry.entry_type);
-      let html = `<div class="trace-entry-header"><span class="audit-step">[${escHtml(String(entry.step || '•'))}]</span>`;
-      if (entryType) {
-        html += `<span class="trace-type">${escHtml(entryType)}</span>`;
-      }
-      html += `<span class="audit-action">${escHtml(entry.action || '')}</span>`;
-      if (entry.round !== undefined && entry.round !== null) {
-        html += `<span class="trace-round">R${escHtml(String(entry.round))}</span>`;
-      }
-      html += `</div>`;
-
-      if (entry.result_summary) {
-        html += `<div class="audit-result">${escHtml(entry.result_summary)}</div>`;
-      }
-      if (entry.lead) {
-        html += renderLead(entry.lead);
-      }
-      if (entry.hypotheses && entry.hypotheses.length > 0) {
-        html += renderTraceList('Hypotheses', entry.hypotheses);
-      }
-      if (entry.lead_decisions && entry.lead_decisions.length > 0) {
-        const decisions = entry.lead_decisions.map(decision => {
-          const supports = Array.isArray(decision.supports) && decision.supports.length
-            ? ` [${decision.supports.join(', ')}]`
-            : '';
-          return `${decision.type}:${decision.value} → ${decision.decision} — ${decision.why || 'no reason'}${supports}`;
-        });
-        html += renderTraceList('Lead Decisions', decisions);
-      }
-      if (entry.planned_tools && entry.planned_tools.length > 0) {
-        const planned = entry.planned_tools.map(tool => {
-          return `${tool.tool || 'tool'} on ${tool.input || 'input'} — ${tool.purpose || 'planned search'}`;
-        });
-        html += renderTraceList('Planned Tools', planned);
-      }
-      if (entry.supports && entry.supports.length > 0) {
-        html += renderTraceList('Supports', entry.supports);
-      }
-      if (entry.new_leads && entry.new_leads.length > 0) {
-        html += `<div class="audit-leads">Leads: ${escHtml(entry.new_leads.join(', '))}</div>`;
-      }
-      if (entry.connection) {
-        html += `<div class="trace-connection">${escHtml(entry.connection.from || 'unknown')} → ${escHtml(entry.connection.to || 'unknown')} · ${escHtml(entry.connection.why || '')}</div>`;
-      }
-      if (entry.connections && entry.connections.length > 0) {
-        const connections = entry.connections.map(connection => {
-          return `${connection.from || 'unknown'} → ${connection.to || 'unknown'} — ${connection.why || ''}`;
-        });
-        html += renderTraceList('Connections', connections);
-      }
-      if (entry.confidence_change) {
-        html += `<div class="trace-confidence">Confidence: ${escHtml(entry.confidence_change.from || '?')} → ${escHtml(entry.confidence_change.to || '?')}</div>`;
-      }
-      if (entry.reasoning) {
-        html += `<div class="audit-reasoning">${escHtml(entry.reasoning)}</div>`;
-      }
-      div.innerHTML = html;
-
-      const container = document.getElementById('auditTrail');
-      container.appendChild(div);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function severityRank(severity) {
-      switch ((severity || '').toLowerCase()) {
-        case 'critical': return 4;
-        case 'high': return 3;
-        case 'medium': return 2;
-        case 'low': return 1;
-        default: return 0;
-      }
-    }
-
-    function renderFindings() {
-      const container = document.getElementById('findingsList');
-      container.innerHTML = '';
-
-      findingsData
-        .sort((a, b) => severityRank(b.severity) - severityRank(a.severity))
-        .forEach((finding) => {
-          const div = document.createElement('div');
-          div.className = 'finding-entry';
-
-          const sevClass = `severity-${finding.severity}`;
-          let html = `<span class="finding-source">[${escHtml(finding.source)}]</span> `;
-          html += `<span class="${sevClass}">${escHtml(finding.severity.toUpperCase())}</span> `;
-          html += `— ${escHtml(finding.finding_type)}`;
-          if (finding.finding_id) {
-            html += `<div class="finding-detail">ID ${escHtml(finding.finding_id)} · ${escHtml(finding.confidence || 'unknown')} confidence</div>`;
-          }
-          if (finding.source_url) {
-            html += `<div class="finding-detail">${renderLinkText('Source', finding.source_url)}</div>`;
-          }
-
-          const findingLinks = collectFindingLinks(finding);
-          if (findingLinks.length > 0) {
-            html += '<div class="finding-links">';
-            findingLinks.forEach(link => {
-              html += renderLinkChip(link.label, link.url);
-            });
-            html += '</div>';
-          }
-
-          if (finding.leads_to && finding.leads_to.length > 0) {
-            const renderedLeads = finding.leads_to.slice(0, 3).map((lead) => {
-              if (typeof lead === 'string' && lead.startsWith('url:')) {
-                const url = lead.slice(4);
-                return isHttpUrl(url) ? renderLinkText('Lead URL', url) : escHtml(lead);
-              }
-              return escHtml(lead);
-            });
-            html += `<div class="audit-leads">→ ${renderedLeads.join(', ')}</div>`;
-          }
-
-          div.innerHTML = html;
-          container.appendChild(div);
-        });
-
-      container.scrollTop = 0;
-    }
-
-    function addFinding(finding) {
-      findingsData.push(finding);
-      renderFindings();
-    }
-
-    function showReport(report) {
-      document.getElementById('reportSection').style.display = 'block';
-
-      // Score
-      const score = report.exposure_score || 0;
-      const scoreEl = document.getElementById('scoreDisplay');
-      let scoreClass = 'score-low';
-      if (score >= 75) scoreClass = 'score-crit';
-      else if (score >= 50) scoreClass = 'score-high';
-      else if (score >= 25) scoreClass = 'score-med';
-      scoreEl.innerHTML = `<span class="${scoreClass}">${score}</span><span class="score-label">/100 EXPOSURE RISK</span>`;
-
-      // Kill chains
-      const chainsEl = document.getElementById('killChains');
-      chainsEl.innerHTML = '';
-      (report.kill_chains || []).forEach(chain => {
-        let html = `<div class="kill-chain"><div class="kill-chain-name">${escHtml(chain.name || '')}</div>`;
-        (chain.steps || []).forEach(step => {
-          html += `<div class="kill-chain-step">${escHtml(step)}</div>`;
-        });
-        if (chain.likelihood) html += `<div style="color:#666;font-size:11px;margin-top:4px">Likelihood: ${chain.likelihood} | Impact: ${chain.impact || 'unknown'}</div>`;
-        html += '</div>';
-        chainsEl.innerHTML += html;
-      });
-      if (!report.kill_chains?.length) chainsEl.innerHTML = '<div style="padding:12px;color:#666">No attack paths identified</div>';
-
-      // Actions
-      const actionsEl = document.getElementById('actionsList');
-      actionsEl.innerHTML = '';
-      (report.actions || []).forEach(action => {
-        let html = `<div class="action-item">`;
-        html += `<span class="action-priority">#${action.priority || '?'}</span> `;
-        html += `<span class="action-text">${escHtml(action.action || '')}</span>`;
-        if (action.category || action.effort) {
-          html += `<div class="action-meta">${escHtml(action.category || '')} · ${escHtml(action.effort || '')}</div>`;
-        }
-        if (Array.isArray(action.links) && action.links.length > 0) {
-          html += '<div class="action-links">';
-          action.links.forEach((link) => {
-            if (!link || !isHttpUrl(link.url)) return;
-            html += `<a class="action-link" href="${escHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escHtml(link.label || 'Open Resource')}</a>`;
-          });
-          html += '</div>';
-        }
-        html += '</div>';
-        actionsEl.innerHTML += html;
-      });
-
-      // Opt-out targets
-      const optOutEl = document.getElementById('optOutList');
-      optOutEl.innerHTML = '';
-      const optOutTargets = collectOptOutTargets(report.findings || []);
-      optOutTargets.forEach((target) => {
-        let html = `<div class="optout-card">`;
-        html += `<div class="optout-title">${escHtml(target.name)}</div>`;
-        html += `<div class="optout-meta">${escHtml(target.description || 'Public-record or broker listing')}</div>`;
-        if (target.dataTypes.length > 0) {
-          html += `<div class="optout-meta">Exposes: ${escHtml(target.dataTypes.join(', '))}</div>`;
-        }
-        if (target.verificationStatus) {
-          html += `<div class="optout-meta">Status: ${escHtml(target.verificationStatus)}</div>`;
-        }
-        html += `<div class="optout-actions">`;
-        if (target.searchUrl) {
-          html += `<a class="optout-btn" href="${escHtml(target.searchUrl)}" target="_blank" rel="noopener noreferrer">View Listing</a>`;
-        }
-        html += `<a class="optout-btn" href="${escHtml(target.optOutUrl)}" target="_blank" rel="noopener noreferrer">Open Opt-Out</a>`;
-        html += `</div>`;
-        if (target.autoCapable) {
-          html += `<div class="optout-badge">Auto-capable</div>`;
-        }
-        html += `</div>`;
-        optOutEl.innerHTML += html;
-      });
-      if (!optOutTargets.length) {
-        optOutEl.innerHTML = '<div style="padding:12px;color:#666">No direct opt-out targets were identified in this scan.</div>';
-      }
-
-      // Laws
-      const lawsEl = document.getElementById('lawsList');
-      lawsEl.innerHTML = '';
-      (report.applicable_laws || []).forEach(law => {
-        let html = `<div class="action-item">`;
-        html += `<strong style="color:#6688cc">${escHtml(law.law || '')}</strong> (${escHtml(law.jurisdiction || '')})`;
-        html += `<div class="action-meta">${escHtml(law.relevance || '')}</div>`;
-        if (law.user_rights) {
-          html += '<div style="margin-top:4px">';
-          law.user_rights.forEach(r => { html += `<div style="color:#888;font-size:11px">• ${escHtml(r)}</div>`; });
-          html += '</div>';
-        }
-        html += '</div>';
-        lawsEl.innerHTML += html;
-      });
-
-      // Full JSON
-      document.getElementById('fullJson').textContent = JSON.stringify(report, null, 2);
-    }
-
-    async function fetchReport(scanId) {
-      try {
-        const resp = await fetch(`/scan/${scanId}`);
-        const report = await resp.json();
-        if (report.findings) showReport(report);
-      } catch (e) { console.error(e); }
-    }
-
-    async function pollResults(scanId) {
-      for (let i = 0; i < 60; i++) {
-        await new Promise(r => setTimeout(r, 3000));
-        try {
-          const resp = await fetch(`/scan/${scanId}`);
-          const data = await resp.json();
-          if (data.status === 'complete' || data.scan_duration_seconds) {
-            showReport(data);
-            document.getElementById('scanBtn').disabled = false;
-            document.getElementById('scanBtn').textContent = 'SCAN FOR EXPOSURE';
-            return;
-          }
-          setStatus(`Polling... (${data.status || 'running'})`, `Findings: ${data.findings_count || 0}`);
-        } catch (e) { /* keep polling */ }
-      }
-    }
-
-    function escHtml(s) {
-      if (typeof s !== 'string') s = String(s);
-      const d = document.createElement('div');
-      d.textContent = s;
-      return d.innerHTML;
-    }
-
-    function isHttpUrl(value) {
-      return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
-    }
-
-    const KNOWN_BROKER_OPT_OUTS = [
-      { name: 'Whitepages', domains: ['whitepages.com'], optOutUrl: 'https://www.whitepages.com/suppression_requests' },
-      { name: 'Spokeo', domains: ['spokeo.com'], optOutUrl: 'https://www.spokeo.com/optout' },
-      { name: 'BeenVerified', domains: ['beenverified.com'], optOutUrl: 'https://www.beenverified.com/optout/' },
-      { name: 'TruthFinder', domains: ['truthfinder.com'], optOutUrl: 'https://www.truthfinder.com/opt-out/' },
-      { name: 'Intelius', domains: ['intelius.com'], optOutUrl: 'https://app.intelius.com/privacy-center/?' },
-      { name: 'PeopleFinder', domains: ['peoplefinders.com'], optOutUrl: 'https://www.peoplefinders.com/opt-out' },
-      { name: 'Radaris', domains: ['radaris.com'], optOutUrl: 'https://radaris.com/control/privacy' },
-      { name: 'FastPeopleSearch', domains: ['fastpeoplesearch.com'], optOutUrl: 'https://www.fastpeoplesearch.com/removal' },
-      { name: 'Acxiom', domains: ['acxiom.com'], optOutUrl: 'https://isapps.acxiom.com/optout/optout.aspx' },
-      { name: 'Epsilon', domains: ['epsilon.com'], optOutUrl: 'https://legal.epsilon.com/optout' },
-      { name: 'Oracle Advertising', domains: ['oracle.com'], optOutUrl: 'https://www.oracle.com/legal/privacy/privacy-choices/' },
-    ];
-
-    function extractHostname(url) {
-      if (!isHttpUrl(url)) return '';
-      try {
-        return new URL(url).hostname.replace(/^www\./i, '').toLowerCase();
-      } catch (err) {
-        return '';
-      }
-    }
-
-    function inferKnownOptOutTarget(finding) {
-      const data = finding.data || {};
-      const brokerName = String(data.broker_name || '').toLowerCase();
-      const title = String(data.title || '').toLowerCase();
-      const hostname = extractHostname(data.search_url || finding.source_url || data.link || '');
-      return KNOWN_BROKER_OPT_OUTS.find((entry) => {
-        const nameMatch = brokerName && entry.name.toLowerCase() === brokerName;
-        const titleMatch = title && title.includes(entry.name.toLowerCase());
-        const domainMatch = hostname && entry.domains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
-        return nameMatch || titleMatch || domainMatch;
-      }) || null;
-    }
-
-    function formatLinkLabel(key) {
-      return String(key || 'Link')
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, (c) => c.toUpperCase());
-    }
-
-    function renderLinkText(label, url) {
-      if (!isHttpUrl(url)) return escHtml(String(url || ''));
-      return `<a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer" style="color:#7db6ff;text-decoration:none">${escHtml(label)}</a> · <span>${escHtml(url)}</span>`;
-    }
-
-    function renderLinkChip(label, url) {
-      return `<a class="finding-link" href="${escHtml(url)}" target="_blank" rel="noopener noreferrer">${escHtml(label)}</a>`;
-    }
-
-    function collectFindingLinks(finding) {
-      const links = [];
-      const seen = new Set();
-
-      function pushLink(label, url) {
-        if (!isHttpUrl(url)) return;
-        const trimmed = url.trim();
-        if (!trimmed || trimmed === (finding.source_url || '').trim() || seen.has(trimmed)) return;
-        seen.add(trimmed);
-        links.push({ label, url: trimmed });
-      }
-
-      function walk(value, keyPath = []) {
-        if (!value) return;
-        if (typeof value === 'string') {
-          if (isHttpUrl(value)) {
-            const key = keyPath[keyPath.length - 1] || 'Link';
-            pushLink(formatLinkLabel(key), value);
-          }
-          return;
-        }
-        if (Array.isArray(value)) {
-          value.forEach((item) => walk(item, keyPath));
-          return;
-        }
-        if (typeof value === 'object') {
-          Object.entries(value).forEach(([key, item]) => {
-            walk(item, [...keyPath, key]);
-          });
-        }
-      }
-
-      walk(finding.data || {});
-      return links.slice(0, 8);
-    }
-
-    function collectOptOutTargets(findings) {
-      const byKey = new Map();
-
-      (findings || []).forEach((finding) => {
-        if (!finding || finding.finding_type !== 'data_broker_listing') return;
-        const data = finding.data || {};
-        const knownTarget = inferKnownOptOutTarget(finding);
-        const optOutUrl = isHttpUrl(data.opt_out_url) ? data.opt_out_url : (knownTarget ? knownTarget.optOutUrl : '');
-        if (!isHttpUrl(optOutUrl)) return;
-
-        const name = data.broker_name || (knownTarget ? knownTarget.name : '') || data.title || finding.source || 'Unknown source';
-        const key = `${name}::${optOutUrl}`;
-        const current = byKey.get(key);
-        const next = {
-          name,
-          description: data.description || '',
-          optOutUrl: optOutUrl.trim(),
-          searchUrl: data.search_url || finding.source_url || '',
-          verificationStatus: data.verification_status || '',
-          dataTypes: Array.isArray(data.data_types_exposed) ? data.data_types_exposed : [],
-          autoCapable: Boolean(data.auto_opt_out_supported || data.remediation_mode === 'automatic'),
-        };
-
-        if (!current) {
-          byKey.set(key, next);
-          return;
-        }
-
-        current.dataTypes = Array.from(new Set([...(current.dataTypes || []), ...(next.dataTypes || [])]));
-        if (!current.description && next.description) current.description = next.description;
-        if (!current.searchUrl && next.searchUrl) current.searchUrl = next.searchUrl;
-        if (!current.verificationStatus && next.verificationStatus) current.verificationStatus = next.verificationStatus;
-        current.autoCapable = current.autoCapable || next.autoCapable;
-      });
-
-      return Array.from(byKey.values()).sort((a, b) => a.name.localeCompare(b.name));
-    }
-
-    function formatEntryType(entryType) {
-      if (!entryType) return '';
-      return String(entryType).replaceAll('_', ' ');
-    }
-
-    function renderLead(lead) {
-      const pills = [];
-      pills.push(`<span class="trace-pill">${escHtml(`${lead.type}:${lead.value}`)}</span>`);
-      if (lead.origin_kind) pills.push(`<span class="trace-pill">${escHtml(lead.origin_kind)}</span>`);
-      if (lead.status) pills.push(`<span class="trace-pill">${escHtml(lead.status)}</span>`);
-      if (lead.confidence) pills.push(`<span class="trace-pill">${escHtml(`${lead.confidence} confidence`)}</span>`);
-
-      let html = `<div class="trace-pills">${pills.join('')}</div>`;
-      if (lead.why) {
-        html += `<div class="trace-block"><strong>Why:</strong> ${escHtml(lead.why)}</div>`;
-      }
-      return html;
-    }
-
-    function renderTraceList(label, items) {
-      if (!Array.isArray(items) || items.length === 0) return '';
-      let html = `<div class="trace-block"><strong>${escHtml(label)}:</strong></div><div class="trace-list">`;
-      items.forEach(item => {
-        html += `<div class="trace-list-item">${escHtml(item)}</div>`;
-      });
-      html += `</div>`;
-      return html;
     }
   </script>
 </body>

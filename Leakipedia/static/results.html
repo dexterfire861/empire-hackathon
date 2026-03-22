@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leakipedia — Scan Results</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      background: #0a0a0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    h1 {
+      font-size: 28px;
+      color: #00ff88;
+      margin-bottom: 4px;
+      letter-spacing: 2px;
+    }
+    .subtitle { color: #666; font-size: 13px; margin-bottom: 24px; }
+    .header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .header-copy { flex: 1; }
+    .nav-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .nav-btn:hover {
+      border-color: #00ff88;
+      color: #00ff88;
+    }
+    .scan-meta {
+      margin-bottom: 16px;
+      color: #888;
+      font-size: 12px;
+      letter-spacing: 0.6px;
+    }
+    .error-box {
+      display: none;
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid #5c2222;
+      background: #1a1010;
+      color: #ff8f8f;
+      font-size: 12px;
+    }
+    .status-bar {
+      display: block;
+      padding: 12px 16px;
+      background: #141420;
+      border: 1px solid #2a2a3a;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .status-bar .status-text { color: #00ff88; }
+    .status-bar .stats { color: #888; margin-top: 4px; }
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .panel {
+      background: #141420;
+      border: 1px solid #2a2a3a;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 10px 16px;
+      background: #1a1a2e;
+      border-bottom: 1px solid #2a2a3a;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+    }
+    .panel-body {
+      padding: 12px;
+      max-height: 500px;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* Round accordion */
+    .round-cell {
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .round-cell:last-child { border-bottom: none; }
+    .round-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 0;
+      cursor: pointer;
+      user-select: none;
+    }
+    .round-header:hover { background: rgba(0,255,136,0.03); }
+    .round-toggle {
+      color: #00ff88;
+      font-size: 10px;
+      width: 14px;
+      text-align: center;
+      transition: transform 0.15s;
+      flex-shrink: 0;
+    }
+    .round-cell.open .round-toggle { transform: rotate(90deg); }
+    .round-label {
+      color: #00ff88;
+      font-weight: bold;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .round-summary {
+      color: #999;
+      font-size: 11px;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .round-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      border: 1px solid #2a2a3a;
+      color: #9aa0b5;
+      background: #10101a;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .round-details {
+      display: none;
+      padding: 0 0 10px 22px;
+    }
+    .round-cell.open .round-details { display: block; }
+
+    .audit-entry {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(42,42,58,0.4);
+    }
+    .audit-entry:last-child { border-bottom: none; }
+    .trace-entry-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .audit-step { color: #00ff88; font-weight: bold; }
+    .audit-action { color: #e0e0e0; }
+    .audit-result { color: #888; font-size: 11px; margin-top: 2px; }
+    .audit-leads { color: #ffaa00; font-size: 11px; }
+    .audit-reasoning { color: #666; font-size: 11px; font-style: italic; }
+    .trace-type {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border: 1px solid #2a2a3a;
+      color: #9aa0b5;
+      background: #10101a;
+    }
+    .trace-round {
+      color: #7c7c90;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .trace-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .trace-pill {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid #2a2a3a;
+      color: #c8ccdb;
+      background: #10101a;
+      font-size: 10px;
+    }
+    .trace-block {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #9aa0b5;
+    }
+    .trace-block strong {
+      color: #c8ccdb;
+      font-weight: 600;
+    }
+    .trace-list {
+      margin-top: 4px;
+      color: #888;
+    }
+    .trace-list-item {
+      margin-top: 2px;
+      padding-left: 12px;
+      position: relative;
+    }
+    .trace-list-item::before {
+      content: "\2022";
+      position: absolute;
+      left: 0;
+      color: #6688cc;
+    }
+    .trace-connection { color: #7db6ff; font-size: 11px; margin-top: 6px; }
+    .trace-confidence { color: #ffaa00; font-size: 11px; margin-top: 4px; }
+
+    /* Findings */
+    .finding-entry {
+      padding: 8px 0;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .finding-entry:last-child { border-bottom: none; }
+    .finding-source { font-weight: bold; }
+    .severity-critical { color: #ff3333; }
+    .severity-high { color: #ff6600; }
+    .severity-medium { color: #ffaa00; }
+    .severity-low { color: #88cc00; }
+    .severity-info { color: #6688cc; }
+    .finding-detail { color: #888; font-size: 11px; margin-top: 2px; }
+    .finding-optout {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid #2a5a3a;
+      background: #0f1f18;
+      color: #00ff88;
+      font-size: 11px;
+      text-decoration: none;
+    }
+    .finding-optout:hover {
+      border-color: #00ff88;
+      background: #0f2a1a;
+    }
+
+    .report-section {
+      display: none;
+      margin-top: 16px;
+    }
+    .report-panel {
+      background: #141420;
+      border: 1px solid #2a2a3a;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .score-display {
+      text-align: center;
+      padding: 24px;
+      font-size: 48px;
+      font-weight: bold;
+    }
+    .score-low { color: #00ff88; }
+    .score-med { color: #ffaa00; }
+    .score-high { color: #ff6600; }
+    .score-crit { color: #ff3333; }
+    .score-label { font-size: 13px; color: #888; margin-top: 4px; }
+    .kill-chain {
+      padding: 12px;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .kill-chain-name { color: #ff6600; font-weight: bold; }
+    .kill-chain-step { color: #ccc; padding-left: 16px; margin-top: 4px; }
+    .kill-chain-step::before { content: "\2192 "; color: #ff6600; }
+    .action-item {
+      padding: 8px 12px;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .action-priority { color: #00ff88; font-weight: bold; }
+    .action-text { color: #e0e0e0; }
+    .action-meta { color: #666; font-size: 11px; }
+    .action-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .action-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #2a2a3a;
+      background: #10101a;
+      color: #7db6ff;
+      font-size: 11px;
+      text-decoration: none;
+    }
+    .action-link:hover {
+      border-color: #7db6ff;
+      color: #a8d0ff;
+    }
+    .optout-card {
+      padding: 12px;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .optout-title { color: #e0e0e0; font-weight: bold; }
+    .optout-meta { color: #888; font-size: 11px; margin-top: 4px; }
+    .optout-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .optout-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #2a2a3a;
+      background: #10101a;
+      color: #7db6ff;
+      font-size: 11px;
+      text-decoration: none;
+    }
+    .optout-btn:hover {
+      border-color: #7db6ff;
+      color: #a8d0ff;
+    }
+    .optout-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid #2a2a3a;
+      color: #ffaa00;
+      background: #10101a;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    pre.json-block {
+      background: #0d0d18;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 11px;
+      color: #aaa;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .empty-state {
+      padding: 28px;
+      color: #888;
+      border: 1px dashed #2a2a3a;
+      border-radius: 10px;
+      text-align: center;
+    }
+    @media (max-width: 900px) {
+      .panels { grid-template-columns: 1fr; }
+      .header-row { flex-direction: column; }
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a0f; }
+    ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-row">
+      <div class="header-copy">
+        <h1>LEAKIPEDIA</h1>
+        <p class="subtitle">Digital Exposure Scanner — Empire Hacks 2026</p>
+      </div>
+      <div class="nav-links">
+        <a class="nav-btn" href="/">New Scan</a>
+        <a class="nav-btn" href="/extension/install">Install Leak Prevent</a>
+      </div>
+    </div>
+
+    <div class="scan-meta" id="scanMeta">Preparing results view...</div>
+    <div class="error-box" id="errorBox"></div>
+
+    <div class="status-bar" id="statusBar">
+      <div class="status-text" id="statusText">Loading scan...</div>
+      <div class="stats" id="statsText"></div>
+    </div>
+
+    <div class="panels" id="panels">
+      <div class="panel">
+        <div class="panel-header">Decision Trace (Live)</div>
+        <div class="panel-body" id="auditTrail"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">Findings (<span id="findingsCount">0</span>)</div>
+        <div class="panel-body" id="findingsList"></div>
+      </div>
+    </div>
+
+    <div class="report-section" id="reportSection">
+      <div class="report-panel">
+        <div class="panel-header">Exposure Score</div>
+        <div class="score-display" id="scoreDisplay">&mdash;</div>
+      </div>
+      <div class="report-panel">
+        <div class="panel-header">Kill Chains &mdash; Attack Paths</div>
+        <div class="panel-body" id="killChains"></div>
+      </div>
+      <div class="report-panel">
+        <div class="panel-header">Remediation Actions</div>
+        <div class="panel-body" id="actionsList"></div>
+      </div>
+      <div class="report-panel">
+        <div class="panel-header">Opt-Out Targets</div>
+        <div class="panel-body" id="optOutList"></div>
+      </div>
+      <div class="report-panel">
+        <div class="panel-header">Applicable Laws</div>
+        <div class="panel-body" id="lawsList"></div>
+      </div>
+      <div class="report-panel">
+        <div class="panel-header">Full Report JSON</div>
+        <div class="panel-body"><pre class="json-block" id="fullJson"></pre></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let ws = null;
+    let findingsCount = 0;
+    let findingsData = [];
+    let currentScanId = null;
+    let seenFindingKeys = new Set();
+    let seenAuditKeys = new Set();
+
+    // Round-grouped audit state
+    let roundEntries = {};   // roundKey -> [entries]
+    let roundMeta = {};      // roundKey -> { sources: Set, findings: 0 }
+
+    function showError(message) {
+      var errorBox = document.getElementById('errorBox');
+      errorBox.textContent = message;
+      errorBox.style.display = 'block';
+    }
+
+    function setStatus(text, stats) {
+      document.getElementById('statusText').textContent = text;
+      document.getElementById('statsText').textContent = stats;
+    }
+
+    function setScanMeta(scanId, label) {
+      document.getElementById('scanMeta').textContent = 'Scan ID: ' + scanId + (label ? ' \u00b7 ' + label : '');
+    }
+
+    function reportIsVisible() {
+      return document.getElementById('reportSection').style.display === 'block';
+    }
+
+    function findingKey(finding) {
+      return JSON.stringify([
+        finding.finding_id || '',
+        finding.source || '',
+        finding.finding_type || '',
+        finding.source_url || '',
+      ]);
+    }
+
+    function auditKey(entry) {
+      return JSON.stringify([
+        entry.step == null ? '' : entry.step,
+        entry.entry_type || '',
+        entry.action || '',
+        entry.round == null ? '' : entry.round,
+        entry.result_summary || '',
+      ]);
+    }
+
+    function escHtml(s) {
+      if (typeof s !== 'string') s = String(s);
+      var d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function isHttpUrl(value) {
+      return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
+    }
+
+    function formatEntryType(entryType) {
+      if (!entryType) return '';
+      return String(entryType).replace(/_/g, ' ');
+    }
+
+    function renderTraceList(label, items) {
+      var html = '<div class="trace-block"><strong>' + escHtml(label) + ':</strong></div>';
+      html += '<div class="trace-list">';
+      items.forEach(function(item) {
+        html += '<div class="trace-list-item">' + escHtml(item) + '</div>';
+      });
+      html += '</div>';
+      return html;
+    }
+
+    function renderLead(lead) {
+      var parts = [];
+      if (lead.type || lead.value) {
+        parts.push((lead.type || 'lead') + ': ' + (lead.value || ''));
+      }
+      if (lead.confidence) {
+        parts.push('confidence ' + lead.confidence);
+      }
+      if (lead.reason) {
+        parts.push(lead.reason);
+      }
+      return '<div class="trace-block"><strong>Lead:</strong> ' + escHtml(parts.join(' \u00b7 ')) + '</div>';
+    }
+
+    // ── Round-grouped Decision Trace ─────────────────────────────────
+
+    function getRoundKey(entry) {
+      if (entry.round !== undefined && entry.round !== null) return 'round_' + entry.round;
+      return 'round_0';
+    }
+
+    function getRoundLabel(key) {
+      if (key === 'round_0') return 'Setup';
+      return 'Round ' + key.replace('round_', '');
+    }
+
+    function buildRoundSummary(key) {
+      var meta = roundMeta[key];
+      if (!meta) return '';
+      var parts = [];
+      if (meta.sources.size > 0) {
+        parts.push('Searched: ' + Array.from(meta.sources).join(', '));
+      }
+      if (meta.findingCount > 0) {
+        parts.push(meta.findingCount + ' finding' + (meta.findingCount !== 1 ? 's' : ''));
+      }
+      if (parts.length === 0) {
+        var entries = roundEntries[key] || [];
+        if (entries.length > 0) {
+          var last = entries[entries.length - 1];
+          return last.action || '';
+        }
+        return 'Initializing...';
+      }
+      return parts.join(' \u00b7 ');
+    }
+
+    function trackAuditMeta(entry) {
+      var key = getRoundKey(entry);
+      if (!roundMeta[key]) {
+        roundMeta[key] = { sources: new Set(), findingCount: 0 };
+      }
+      var m = roundMeta[key];
+      var action = (entry.action || '').toLowerCase();
+
+      if (entry.entry_type === 'tool_call' || entry.entry_type === 'tool_result') {
+        var sourceName = action.replace(/^calling\s+/i, '').replace(/\s+(completed|error|timeout|reused|skipped)$/i, '').trim();
+        if (sourceName) m.sources.add(sourceName);
+      }
+
+      if (entry.entry_type === 'tool_result') {
+        var match = (entry.result_summary || '').match(/Found\s+(\d+)\s+finding/i);
+        if (match) m.findingCount += parseInt(match[1], 10);
+      }
+    }
+
+    function renderAuditEntryHtml(entry) {
+      var entryType = formatEntryType(entry.entry_type);
+      var html = '<div class="audit-entry">';
+      html += '<div class="trace-entry-header">';
+      html += '<span class="audit-step">[' + escHtml(String(entry.step || '\u2022')) + ']</span>';
+      if (entryType) {
+        html += '<span class="trace-type">' + escHtml(entryType) + '</span>';
+      }
+      html += '<span class="audit-action">' + escHtml(entry.action || '') + '</span>';
+      html += '</div>';
+
+      if (entry.result_summary) {
+        html += '<div class="audit-result">' + escHtml(entry.result_summary) + '</div>';
+      }
+      if (entry.lead) {
+        html += renderLead(entry.lead);
+      }
+      if (entry.hypotheses && entry.hypotheses.length > 0) {
+        html += renderTraceList('Hypotheses', entry.hypotheses);
+      }
+      if (entry.lead_decisions && entry.lead_decisions.length > 0) {
+        var decisions = entry.lead_decisions.map(function(d) {
+          var supports = Array.isArray(d.supports) && d.supports.length
+            ? ' [' + d.supports.join(', ') + ']'
+            : '';
+          return d.type + ':' + d.value + ' \u2192 ' + d.decision + ' \u2014 ' + (d.why || 'no reason') + supports;
+        });
+        html += renderTraceList('Lead Decisions', decisions);
+      }
+      if (entry.planned_tools && entry.planned_tools.length > 0) {
+        var planned = entry.planned_tools.map(function(t) {
+          return (t.tool || 'tool') + ' on ' + (t.input || 'input') + ' \u2014 ' + (t.purpose || 'planned search');
+        });
+        html += renderTraceList('Planned Tools', planned);
+      }
+      if (entry.supports && entry.supports.length > 0) {
+        html += renderTraceList('Supports', entry.supports);
+      }
+      if (entry.new_leads && entry.new_leads.length > 0) {
+        html += '<div class="audit-leads">Leads: ' + escHtml(entry.new_leads.join(', ')) + '</div>';
+      }
+      if (entry.connection) {
+        html += '<div class="trace-connection">' + escHtml(entry.connection.from || 'unknown') + ' \u2192 ' + escHtml(entry.connection.to || 'unknown') + ' \u00b7 ' + escHtml(entry.connection.why || '') + '</div>';
+      }
+      if (entry.connections && entry.connections.length > 0) {
+        var conns = entry.connections.map(function(c) {
+          return (c.from || 'unknown') + ' \u2192 ' + (c.to || 'unknown') + ' \u2014 ' + (c.why || '');
+        });
+        html += renderTraceList('Connections', conns);
+      }
+      if (entry.confidence_change) {
+        html += '<div class="trace-confidence">Confidence: ' + escHtml(entry.confidence_change.from || '?') + ' \u2192 ' + escHtml(entry.confidence_change.to || '?') + '</div>';
+      }
+      if (entry.reasoning) {
+        html += '<div class="audit-reasoning">' + escHtml(entry.reasoning) + '</div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function rerenderTrace() {
+      var container = document.getElementById('auditTrail');
+      var keys = Object.keys(roundEntries).sort(function(a, b) {
+        var na = parseInt(a.replace('round_', ''), 10);
+        var nb = parseInt(b.replace('round_', ''), 10);
+        return na - nb;
+      });
+
+      keys.forEach(function(key) {
+        var cellId = 'trace-' + key;
+        var existing = document.getElementById(cellId);
+        var summary = buildRoundSummary(key);
+        var entries = roundEntries[key] || [];
+        var badgeText = entries.length + ' step' + (entries.length !== 1 ? 's' : '');
+
+        if (existing) {
+          existing.querySelector('.round-summary').textContent = summary;
+          existing.querySelector('.round-badge').textContent = badgeText;
+          var details = existing.querySelector('.round-details');
+          details.innerHTML = '';
+          entries.forEach(function(e) { details.innerHTML += renderAuditEntryHtml(e); });
+        } else {
+          var cell = document.createElement('div');
+          cell.className = 'round-cell';
+          cell.id = cellId;
+
+          var header = document.createElement('div');
+          header.className = 'round-header';
+          header.innerHTML =
+            '<span class="round-toggle">\u25B6</span>' +
+            '<span class="round-label">' + escHtml(getRoundLabel(key)) + '</span>' +
+            '<span class="round-summary">' + escHtml(summary) + '</span>' +
+            '<span class="round-badge">' + escHtml(badgeText) + '</span>';
+
+          header.addEventListener('click', function() {
+            cell.classList.toggle('open');
+          });
+
+          var details = document.createElement('div');
+          details.className = 'round-details';
+          entries.forEach(function(e) { details.innerHTML += renderAuditEntryHtml(e); });
+
+          cell.appendChild(header);
+          cell.appendChild(details);
+          container.appendChild(cell);
+        }
+      });
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function addAuditEntry(entry) {
+      var key = auditKey(entry);
+      if (seenAuditKeys.has(key)) return;
+      seenAuditKeys.add(key);
+
+      var roundKey = getRoundKey(entry);
+      if (!roundEntries[roundKey]) roundEntries[roundKey] = [];
+      roundEntries[roundKey].push(entry);
+      trackAuditMeta(entry);
+      rerenderTrace();
+    }
+
+    // ── Findings ─────────────────────────────────────────────────────
+
+    var KNOWN_BROKER_OPT_OUTS = [
+      { name: 'Whitepages', domains: ['whitepages.com'], optOutUrl: 'https://www.whitepages.com/suppression_requests' },
+      { name: 'Spokeo', domains: ['spokeo.com'], optOutUrl: 'https://www.spokeo.com/optout' },
+      { name: 'BeenVerified', domains: ['beenverified.com'], optOutUrl: 'https://www.beenverified.com/optout/' },
+      { name: 'TruthFinder', domains: ['truthfinder.com'], optOutUrl: 'https://www.truthfinder.com/opt-out/' },
+      { name: 'Intelius', domains: ['intelius.com'], optOutUrl: 'https://app.intelius.com/privacy-center/?' },
+      { name: 'PeopleFinder', domains: ['peoplefinders.com'], optOutUrl: 'https://www.peoplefinders.com/opt-out' },
+      { name: 'Radaris', domains: ['radaris.com'], optOutUrl: 'https://radaris.com/control/privacy' },
+      { name: 'FastPeopleSearch', domains: ['fastpeoplesearch.com'], optOutUrl: 'https://www.fastpeoplesearch.com/removal' },
+      { name: 'Acxiom', domains: ['acxiom.com'], optOutUrl: 'https://isapps.acxiom.com/optout/optout.aspx' },
+      { name: 'Epsilon', domains: ['epsilon.com'], optOutUrl: 'https://legal.epsilon.com/optout' },
+      { name: 'Oracle Advertising', domains: ['oracle.com'], optOutUrl: 'https://www.oracle.com/legal/privacy/privacy-choices/' },
+    ];
+
+    function extractHostname(url) {
+      if (!isHttpUrl(url)) return '';
+      try {
+        return new URL(url).hostname.replace(/^www\./i, '').toLowerCase();
+      } catch (err) {
+        return '';
+      }
+    }
+
+    function inferKnownOptOutTarget(finding) {
+      var data = finding.data || {};
+      var brokerName = String(data.broker_name || '').toLowerCase();
+      var title = String(data.title || '').toLowerCase();
+      var hostname = extractHostname(data.search_url || finding.source_url || data.link || '');
+      return KNOWN_BROKER_OPT_OUTS.find(function(entry) {
+        var nameMatch = brokerName && entry.name.toLowerCase() === brokerName;
+        var titleMatch = title && title.includes(entry.name.toLowerCase());
+        var domainMatch = hostname && entry.domains.some(function(d) { return hostname === d || hostname.endsWith('.' + d); });
+        return nameMatch || titleMatch || domainMatch;
+      }) || null;
+    }
+
+    function getOptOutUrl(finding) {
+      var data = finding.data || {};
+      if (data.opt_out_url) return data.opt_out_url;
+      var inferred = inferKnownOptOutTarget(finding);
+      return inferred ? inferred.optOutUrl : null;
+    }
+
+    function severityRank(severity) {
+      switch ((severity || '').toLowerCase()) {
+        case 'critical': return 4;
+        case 'high': return 3;
+        case 'medium': return 2;
+        case 'low': return 1;
+        default: return 0;
+      }
+    }
+
+    function findingSortKey(f) {
+      var sev = severityRank(f.severity);
+      var hasOptOut = getOptOutUrl(f) ? 1 : 0;
+      return -(sev * 10 + hasOptOut);
+    }
+
+    function renderFindings() {
+      var container = document.getElementById('findingsList');
+      container.innerHTML = '';
+
+      findingsData
+        .slice()
+        .sort(function(a, b) { return findingSortKey(a) - findingSortKey(b); })
+        .forEach(function(finding) {
+          var div = document.createElement('div');
+          div.className = 'finding-entry';
+
+          var sevClass = 'severity-' + finding.severity;
+          var optOutUrl = getOptOutUrl(finding);
+          var data = finding.data || {};
+          var displayName = data.broker_name || data.site_name || data.service || finding.source;
+
+          var html = '<span class="finding-source">[' + escHtml(displayName) + ']</span> ';
+          html += '<span class="' + sevClass + '">' + escHtml(String(finding.severity || '').toUpperCase()) + '</span> ';
+          html += '\u2014 ' + escHtml(finding.finding_type);
+          if (finding.finding_id) {
+            html += '<div class="finding-detail">ID ' + escHtml(finding.finding_id) + ' \u00b7 ' + escHtml(finding.confidence || 'unknown') + ' confidence</div>';
+          }
+
+          var buttons = '';
+          if (finding.source_url && isHttpUrl(finding.source_url)) {
+            buttons += '<a class="finding-optout" href="' + escHtml(finding.source_url) + '" target="_blank" rel="noopener noreferrer">Source</a>';
+          }
+          if (optOutUrl) {
+            buttons += '<a class="finding-optout" href="' + escHtml(optOutUrl) + '" target="_blank" rel="noopener noreferrer">\u2192 Opt Out</a>';
+          }
+          if (buttons) {
+            html += '<div style="display:flex;gap:6px;flex-wrap:wrap">' + buttons + '</div>';
+          }
+
+          if (finding.leads_to && finding.leads_to.length > 0) {
+            var renderedLeads = finding.leads_to.slice(0, 3).map(function(lead) {
+              return escHtml(lead);
+            });
+            html += '<div class="audit-leads">\u2192 ' + renderedLeads.join(', ') + '</div>';
+          }
+
+          div.innerHTML = html;
+          container.appendChild(div);
+        });
+
+      container.scrollTop = 0;
+      document.getElementById('findingsCount').textContent = String(findingsData.length);
+    }
+
+    function addFinding(finding) {
+      var key = findingKey(finding);
+      if (seenFindingKeys.has(key)) return;
+      seenFindingKeys.add(key);
+      findingsData.push(finding);
+      findingsCount = findingsData.length;
+      renderFindings();
+    }
+
+    // ── Opt-Out Targets (report section) ─────────────────────────────
+
+    function collectOptOutTargets(findings) {
+      var targets = new Map();
+      (findings || []).forEach(function(finding) {
+        var inferred = inferKnownOptOutTarget(finding);
+        if (!inferred) return;
+        var data = finding.data || {};
+        var key = inferred.name.toLowerCase();
+        var existing = targets.get(key) || {
+          name: inferred.name,
+          optOutUrl: inferred.optOutUrl,
+          searchUrl: data.search_url || finding.source_url || '',
+          description: data.title || finding.finding_type || '',
+          dataTypes: [],
+          verificationStatus: data.status || '',
+          autoCapable: Boolean(data.auto_capable),
+        };
+
+        var exposed = data.exposed_fields || data.data_types || [];
+        if (Array.isArray(exposed)) {
+          exposed.forEach(function(item) {
+            if (item && !existing.dataTypes.includes(item)) existing.dataTypes.push(item);
+          });
+        }
+        if (!existing.searchUrl && (data.search_url || finding.source_url)) {
+          existing.searchUrl = data.search_url || finding.source_url;
+        }
+        if (!existing.description && (data.title || finding.finding_type)) {
+          existing.description = data.title || finding.finding_type;
+        }
+        if (!existing.verificationStatus && data.status) {
+          existing.verificationStatus = data.status;
+        }
+        if (!existing.autoCapable && data.auto_capable) {
+          existing.autoCapable = true;
+        }
+        targets.set(key, existing);
+      });
+      return Array.from(targets.values());
+    }
+
+    // ── Hydrate / Report ─────────────────────────────────────────────
+
+    function hydrateState(state) {
+      if (Array.isArray(state.findings)) {
+        state.findings.forEach(addFinding);
+      }
+      if (Array.isArray(state.audit_trail)) {
+        state.audit_trail.forEach(addAuditEntry);
+      }
+      setStatus('Status: ' + (state.status || 'running'), 'Findings so far: ' + (state.findings_count || findingsData.length));
+    }
+
+    function isCompletedReport(payload) {
+      return payload && (
+        payload.exposure_score !== undefined ||
+        payload.scan_duration_seconds !== undefined ||
+        Array.isArray(payload.kill_chains) ||
+        Array.isArray(payload.actions)
+      );
+    }
+
+    function showReport(report) {
+      document.getElementById('reportSection').style.display = 'block';
+      if (Array.isArray(report.findings)) {
+        report.findings.forEach(addFinding);
+      }
+
+      var score = report.exposure_score || 0;
+      var scoreEl = document.getElementById('scoreDisplay');
+      var scoreClass = 'score-low';
+      if (score >= 75) scoreClass = 'score-crit';
+      else if (score >= 50) scoreClass = 'score-high';
+      else if (score >= 25) scoreClass = 'score-med';
+      scoreEl.innerHTML = '<span class="' + scoreClass + '">' + score + '</span><span class="score-label">/100 EXPOSURE RISK</span>';
+
+      var chainsEl = document.getElementById('killChains');
+      chainsEl.innerHTML = '';
+      (report.kill_chains || []).forEach(function(chain) {
+        var html = '<div class="kill-chain"><div class="kill-chain-name">' + escHtml(chain.name || '') + '</div>';
+        (chain.steps || []).forEach(function(step) {
+          html += '<div class="kill-chain-step">' + escHtml(step) + '</div>';
+        });
+        if (chain.likelihood) {
+          html += '<div style="color:#666;font-size:11px;margin-top:4px">Likelihood: ' + chain.likelihood + ' | Impact: ' + (chain.impact || 'unknown') + '</div>';
+        }
+        html += '</div>';
+        chainsEl.innerHTML += html;
+      });
+      if (!report.kill_chains || !report.kill_chains.length) {
+        chainsEl.innerHTML = '<div style="padding:12px;color:#666">No attack paths identified</div>';
+      }
+
+      var actionsEl = document.getElementById('actionsList');
+      actionsEl.innerHTML = '';
+      (report.actions || []).forEach(function(action) {
+        var html = '<div class="action-item">';
+        html += '<span class="action-priority">#' + (action.priority || '?') + '</span> ';
+        html += '<span class="action-text">' + escHtml(action.action || '') + '</span>';
+        if (action.category || action.effort) {
+          html += '<div class="action-meta">' + escHtml(action.category || '') + ' \u00b7 ' + escHtml(action.effort || '') + '</div>';
+        }
+        if (Array.isArray(action.links) && action.links.length > 0) {
+          html += '<div class="action-links">';
+          action.links.forEach(function(link) {
+            if (!link || !isHttpUrl(link.url)) return;
+            html += '<a class="action-link" href="' + escHtml(link.url) + '" target="_blank" rel="noopener noreferrer">' + escHtml(link.label || 'Open Resource') + '</a>';
+          });
+          html += '</div>';
+        }
+        html += '</div>';
+        actionsEl.innerHTML += html;
+      });
+
+      var optOutEl = document.getElementById('optOutList');
+      optOutEl.innerHTML = '';
+      var optOutTargets = collectOptOutTargets(report.findings || findingsData);
+      optOutTargets.forEach(function(target) {
+        var html = '<div class="optout-card">';
+        html += '<div class="optout-title">' + escHtml(target.name) + '</div>';
+        html += '<div class="optout-meta">' + escHtml(target.description || 'Public-record or broker listing') + '</div>';
+        if (target.dataTypes.length > 0) {
+          html += '<div class="optout-meta">Exposes: ' + escHtml(target.dataTypes.join(', ')) + '</div>';
+        }
+        if (target.verificationStatus) {
+          html += '<div class="optout-meta">Status: ' + escHtml(target.verificationStatus) + '</div>';
+        }
+        html += '<div class="optout-actions">';
+        if (target.searchUrl) {
+          html += '<a class="optout-btn" href="' + escHtml(target.searchUrl) + '" target="_blank" rel="noopener noreferrer">View Listing</a>';
+        }
+        html += '<a class="optout-btn" href="' + escHtml(target.optOutUrl) + '" target="_blank" rel="noopener noreferrer">Open Opt-Out</a>';
+        html += '</div>';
+        if (target.autoCapable) {
+          html += '<div class="optout-badge">Auto-capable</div>';
+        }
+        html += '</div>';
+        optOutEl.innerHTML += html;
+      });
+      if (!optOutTargets.length) {
+        optOutEl.innerHTML = '<div style="padding:12px;color:#666">No direct opt-out targets were identified in this scan.</div>';
+      }
+
+      var lawsEl = document.getElementById('lawsList');
+      lawsEl.innerHTML = '';
+      (report.applicable_laws || []).forEach(function(law) {
+        var html = '<div class="action-item">';
+        html += '<strong style="color:#6688cc">' + escHtml(law.law || '') + '</strong> (' + escHtml(law.jurisdiction || '') + ')';
+        html += '<div class="action-meta">' + escHtml(law.relevance || '') + '</div>';
+        if (law.user_rights) {
+          html += '<div style="margin-top:4px">';
+          law.user_rights.forEach(function(r) { html += '<div style="color:#888;font-size:11px">\u2022 ' + escHtml(r) + '</div>'; });
+          html += '</div>';
+        }
+        html += '</div>';
+        lawsEl.innerHTML += html;
+      });
+
+      document.getElementById('fullJson').textContent = JSON.stringify(report, null, 2);
+    }
+
+    // ── WebSocket & Init ─────────────────────────────────────────────
+
+    async function fetchReport(scanId) {
+      try {
+        var resp = await fetch('/scan/' + scanId);
+        var report = await resp.json();
+        if (isCompletedReport(report)) {
+          showReport(report);
+          setStatus('Scan complete', 'Final report ready');
+          setScanMeta(scanId, 'complete');
+          return true;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      return false;
+    }
+
+    async function pollResults(scanId) {
+      for (var i = 0; i < 60; i++) {
+        await new Promise(function(r) { setTimeout(r, 3000); });
+        try {
+          var resp = await fetch('/scan/' + scanId);
+          var data = await resp.json();
+          if (isCompletedReport(data)) {
+            showReport(data);
+            setStatus('Scan complete', 'Final report ready');
+            setScanMeta(scanId, 'complete');
+            return;
+          }
+          hydrateState(data);
+        } catch (e) {
+          // keep polling
+        }
+      }
+      showError('Timed out waiting for scan completion. You can refresh this page to try again.');
+    }
+
+    function connectWebSocket(scanId) {
+      var proto = location.protocol === 'https:' ? 'wss' : 'ws';
+      ws = new WebSocket(proto + '://' + location.host + '/scan/' + scanId + '/stream');
+
+      ws.onmessage = function(event) {
+        var data = JSON.parse(event.data);
+        handleEvent(data, scanId);
+      };
+
+      ws.onerror = function() {
+        setStatus('WebSocket error \u2014 polling for results...', '');
+        pollResults(scanId);
+      };
+
+      ws.onclose = function() {
+        if (!reportIsVisible()) {
+          setStatus('Live stream closed', 'Refreshing report state...');
+          pollResults(scanId);
+        }
+      };
+    }
+
+    function handleEvent(event, scanId) {
+      switch (event.type) {
+        case 'status':
+          setStatus('Status: ' + event.status, 'Findings so far: ' + (event.findings_count || findingsData.length));
+          setScanMeta(scanId, event.status || 'running');
+          break;
+        case 'scan_started':
+          setStatus('Scan running (' + (event.sources_count || 'multiple') + ' tools available)', 'Round 1 starting...');
+          setScanMeta(scanId, 'running');
+          break;
+        case 'round_start':
+          setStatus('Round ' + event.round + ' in progress...', 'Findings: ' + findingsData.length);
+          break;
+        case 'tool_call':
+          setStatus('Calling ' + event.tool + '...', 'Findings: ' + findingsData.length);
+          break;
+        case 'tool_result':
+          break;
+        case 'finding':
+          addFinding(event.finding);
+          setStatus('New finding received', 'Findings: ' + findingsData.length);
+          break;
+        case 'audit_step':
+          addAuditEntry(event.step);
+          break;
+        case 'round_complete':
+          setStatus('Round ' + event.round + ' complete', 'Total findings: ' + event.findings_count + ', New leads: ' + event.new_leads);
+          break;
+        case 'risk_assessment':
+          setStatus('Risk assessment complete', 'Score: ' + event.score + '/100');
+          break;
+        case 'scan_complete':
+          setStatus('Scan complete', 'Final report ready');
+          setScanMeta(scanId, 'complete');
+          showReport(event.report);
+          if (ws) ws.close();
+          break;
+        case 'error':
+          setStatus('Error: ' + event.message, '');
+          showError(event.message || 'Scan failed unexpectedly');
+          fetchReport(scanId);
+          break;
+        case 'ping':
+          break;
+      }
+    }
+
+    async function loadInitialState(scanId) {
+      var resp = await fetch('/scan/' + scanId);
+      var data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data.detail || 'Unable to load scan');
+      }
+
+      if (isCompletedReport(data)) {
+        showReport(data);
+        setStatus('Scan complete', 'Final report ready');
+        setScanMeta(scanId, 'complete');
+        return true;
+      }
+
+      hydrateState(data);
+      setScanMeta(scanId, data.status || 'running');
+      return false;
+    }
+
+    async function initPage() {
+      var scanId = new URLSearchParams(window.location.search).get('scan_id');
+      if (!scanId) {
+        document.getElementById('panels').innerHTML = '<div class="empty-state">No scan ID was provided. Start a new scan from the home page.</div>';
+        setStatus('Missing scan ID', 'Open a new scan to continue');
+        showError('This page needs a valid scan ID in the URL.');
+        return;
+      }
+
+      currentScanId = scanId;
+      setScanMeta(scanId, 'loading');
+
+      try {
+        var isComplete = await loadInitialState(scanId);
+        if (!isComplete) {
+          connectWebSocket(scanId);
+        }
+      } catch (err) {
+        setStatus('Unable to load scan', '');
+        showError(err.message || 'Unable to load scan results');
+      }
+    }
+
+    initPage();
+  </script>
+</body>
+</html>
