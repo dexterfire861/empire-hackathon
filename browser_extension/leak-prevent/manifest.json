@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Leak Prevent",
+  "description": "Warn users about risky sites, detect privacy leakage signals, and sync with the Leakipedia dashboard.",
+  "version": "0.2.0",
+  "permissions": ["storage", "tabs", "activeTab", "sidePanel"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Leak Prevent",
+    "default_popup": "popup.html"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
