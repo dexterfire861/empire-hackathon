@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
-from Leakipedia.agent.schemas import Finding, ScanReport, ScanRequest
+from Leakipedia.agent.schemas import Finding, Lead, ScanReport, ScanRequest
 
 
 class ScanStatus(str, Enum):
@@ -45,8 +45,10 @@ class ScanState:
     request: ScanRequest
     status: ScanStatus = ScanStatus.PENDING
     findings: list[Finding] = field(default_factory=list)
+    lead_registry: list[Lead] = field(default_factory=list)
     audit_trail: list[dict] = field(default_factory=list)
     report: Optional[ScanReport] = None
+    lead_lookup: dict[str, str] = field(default_factory=dict, repr=False)
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     event_bus: EventBus = field(default_factory=EventBus)
     started_at: datetime = field(
@@ -86,6 +88,23 @@ class ScanStore:
         async with state.lock:
             state.audit_trail.append(entry)
         await state.event_bus.publish({"type": "audit_step", "step": entry})
+
+    async def add_or_update_lead(
+        self, scan_id: str, canonical_key: str, lead: Lead
+    ) -> None:
+        state = self._scans.get(scan_id)
+        if not state:
+            return
+        async with state.lock:
+            lead_id = state.lead_lookup.get(canonical_key)
+            if lead_id:
+                for index, existing in enumerate(state.lead_registry):
+                    if existing.lead_id == lead_id:
+                        state.lead_registry[index] = lead
+                        break
+            else:
+                state.lead_lookup[canonical_key] = lead.lead_id
+                state.lead_registry.append(lead)
 
     async def update_status(self, scan_id: str, status: ScanStatus) -> None:
         state = self._scans.get(scan_id)

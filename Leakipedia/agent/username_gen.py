@@ -54,3 +54,37 @@ def generate_username_permutations(full_name: str, known_usernames: Optional[lis
             result.append(p)
 
     return result
+
+
+def build_username_candidate_sets(
+    full_name: str, known_usernames: list[str] | None = None
+) -> dict[str, list[str]]:
+    """
+    Split generated usernames into conservative auto-search and deferred buckets.
+    """
+    known = [u.strip().lower() for u in (known_usernames or []) if u and u.strip()]
+    all_candidates = generate_username_permutations(full_name, known)
+
+    parts = full_name.strip().lower().split()
+    if len(parts) < 2:
+        return {"auto_search": known, "deferred": []}
+
+    first = parts[0]
+    last = parts[-1]
+    conservative_patterns = [
+        f"{first}{last}",
+        f"{first}.{last}",
+        f"{first}_{last}",
+        f"{first}-{last}",
+    ]
+
+    auto_search: list[str] = []
+    seen: set[str] = set()
+    for candidate in known + conservative_patterns:
+        if candidate in all_candidates and candidate not in seen:
+            seen.add(candidate)
+            auto_search.append(candidate)
+
+    deferred = [candidate for candidate in all_candidates if candidate not in seen]
+
+    return {"auto_search": auto_search, "deferred": deferred}
