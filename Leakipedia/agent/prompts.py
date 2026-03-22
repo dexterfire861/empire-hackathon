@@ -15,7 +15,7 @@ ROUND 2: Analyze Round 1 results. Extract any NEW leads discovered:
 - New domains (from personal websites, crt.sh results)
 Run relevant tools on these new leads.
 
-ROUND 3: One final pass on any high-value leads from Round 2. Stop after this round.
+ROUND 3: One final pass on any high-value leads from Round 2.
 
 Before you emit any tool calls in a scan round, you must first emit one short visible trace block \
 wrapped in <trace> and </trace>. The contents must be valid JSON with this structure:
