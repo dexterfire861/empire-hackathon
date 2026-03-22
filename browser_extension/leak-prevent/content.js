@@ -237,14 +237,16 @@ async function showWarning(analysis) {
   warningNode.style.padding = "14px 16px";
   warningNode.style.borderRadius = "16px";
   warningNode.style.background = "rgba(10, 18, 31, 0.96)";
-  warningNode.style.border = "1px solid rgba(255,255,255,0.12)";
-  warningNode.style.boxShadow = "0 24px 44px rgba(0,0,0,0.35)";
+  warningNode.style.border = "1px solid rgba(255, 255, 255, 0.12)";
+  warningNode.style.boxShadow = "0 24px 44px rgba(0, 0, 0, 0.35)";
   warningNode.style.color = "#eef5ff";
-  warningNode.style.fontFamily = 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  warningNode.style.fontFamily = '"Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  warningNode.style.backdropFilter = "blur(10px)";
 
   const title = document.createElement("div");
   title.style.fontWeight = "700";
   title.style.marginBottom = "8px";
+  title.style.fontSize = "13px";
   title.textContent = analysis.siteType === "sketchy" ? "Do not enter personal info here" : "Leak Prevent warning";
 
   const body = document.createElement("div");
@@ -272,13 +274,14 @@ async function showWarning(analysis) {
     emailCard.style.marginTop = "12px";
     emailCard.style.padding = "12px";
     emailCard.style.borderRadius = "12px";
-    emailCard.style.background = "rgba(129, 242, 200, 0.08)";
-    emailCard.style.border = "1px solid rgba(129, 242, 200, 0.2)";
+    emailCard.style.background = "rgba(255, 255, 255, 0.06)";
+    emailCard.style.border = "1px solid rgba(89, 169, 255, 0.22)";
 
     const emailTitle = document.createElement("div");
     emailTitle.style.fontSize = "12px";
     emailTitle.style.fontWeight = "700";
     emailTitle.style.marginBottom = "8px";
+    emailTitle.style.color = "#eef5ff";
     emailTitle.textContent = "Masked email";
 
     const emailValue = document.createElement("div");
@@ -286,6 +289,7 @@ async function showWarning(analysis) {
     emailValue.style.lineHeight = "1.4";
     emailValue.style.wordBreak = "break-all";
     emailValue.style.marginBottom = "10px";
+    emailValue.style.color = "#eef5ff";
 
     const copyButton = document.createElement("button");
     copyButton.type = "button";
@@ -294,8 +298,9 @@ async function showWarning(analysis) {
     copyButton.style.padding = "8px 12px";
     copyButton.style.fontWeight = "700";
     copyButton.style.cursor = "pointer";
-    copyButton.style.background = "linear-gradient(135deg, #81f2c8, #b0ffe3)";
-    copyButton.style.color = "#092218";
+    copyButton.style.background = "linear-gradient(135deg, #8fcbff, #59a9ff)";
+    copyButton.style.color = "#0f172a";
+    copyButton.style.boxShadow = "0 10px 20px rgba(89, 169, 255, 0.22)";
 
     if (!settings.userEmail) {
       emailValue.textContent = "Add your real email in Leak Prevent settings to generate site-specific aliases.";
