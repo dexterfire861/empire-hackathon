@@ -23,6 +23,8 @@ from Leakipedia.agent.schemas import ScanRequest
 from Leakipedia.extension_analysis import build_extension_analysis
 
 STATIC_DIR = Path(__file__).parent / "static"
+RESULTS_APP_DIR = STATIC_DIR / "results-app"
+RESULTS_APP_INDEX = RESULTS_APP_DIR / "index.html"
 EXTENSION_DIR = Path(__file__).parent.parent / "browser_extension" / "leak-prevent"
 
 logger = logging.getLogger("Leakipedia")
@@ -84,6 +86,8 @@ async def index():
 
 @app.get("/results")
 async def results():
+    if RESULTS_APP_INDEX.exists():
+        return FileResponse(RESULTS_APP_INDEX)
     return FileResponse(STATIC_DIR / "results.html")
 
 
@@ -277,7 +281,7 @@ async def start_scan(request: ScanRequest):
 
 @app.get("/scan/{scan_id}")
 async def get_scan(scan_id: str):
-    state = store.get(scan_id)
+    state = store.get_or_load(scan_id)
     if not state:
         raise HTTPException(status_code=404, detail="Scan not found")
 
@@ -295,7 +299,7 @@ async def get_scan(scan_id: str):
 
 @app.get("/scan/{scan_id}/audit-trail")
 async def get_audit_trail(scan_id: str):
-    state = store.get(scan_id)
+    state = store.get_or_load(scan_id)
     if not state:
         raise HTTPException(status_code=404, detail="Scan not found")
     return state.audit_trail
@@ -303,7 +307,7 @@ async def get_audit_trail(scan_id: str):
 
 @app.get("/scan/{scan_id}/actions")
 async def get_actions(scan_id: str):
-    state = store.get(scan_id)
+    state = store.get_or_load(scan_id)
     if not state:
         raise HTTPException(status_code=404, detail="Scan not found")
     if not state.report:

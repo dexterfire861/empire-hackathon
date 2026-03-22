@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+Leakipedia/dev_saved_scans/
 *.py[codz]
 *$py.class
 
@@ -138,6 +139,8 @@ celerybeat.pid
 .env
 .envrc
 .venv
+frontend/node_modules/
+frontend/.vite/
 env/
 venv/
 ENV/
