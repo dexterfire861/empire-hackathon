@@ -242,7 +242,17 @@
       border-bottom: 1px solid #1a1a2e;
     }
     .finding-entry:last-child { border-bottom: none; }
-    .finding-source { font-weight: bold; }
+    .finding-source {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #2a2a3a;
+      background: #10101a;
+      color: #7db6ff;
+      font-weight: bold;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
     .severity-critical { color: #ff3333; }
     .severity-high { color: #ff6600; }
     .severity-medium { color: #ffaa00; }
@@ -289,6 +299,55 @@
     .score-high { color: #ff6600; }
     .score-crit { color: #ff3333; }
     .score-label { font-size: 13px; color: #888; margin-top: 4px; }
+    .score-meta {
+      padding: 0 16px 16px;
+      color: #9aa7b8;
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .score-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 16px 12px;
+    }
+    .score-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid #2a2a3a;
+      background: #10101a;
+      color: #c8d2de;
+      font-size: 11px;
+    }
+    .score-factors {
+      border-top: 1px solid #1a1a2e;
+      padding: 4px 0;
+    }
+    .score-factor {
+      display: flex;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .score-factor-points {
+      min-width: 40px;
+      color: #81f2c8;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .score-factor-label {
+      color: #e0e0e0;
+      font-weight: 600;
+    }
+    .score-factor-detail {
+      color: #7f8a99;
+      font-size: 11px;
+      margin-top: 3px;
+      line-height: 1.5;
+    }
     .kill-chain {
       padding: 12px;
       border-bottom: 1px solid #1a1a2e;
@@ -365,6 +424,133 @@
       text-transform: uppercase;
       letter-spacing: 0.8px;
     }
+    .optout-section {
+      padding: 12px;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .optout-section:last-child {
+      border-bottom: none;
+    }
+    .optout-section-title {
+      color: #e0e0e0;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .optout-section-copy {
+      color: #888;
+      font-size: 11px;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    .optout-directory {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .optout-resource {
+      padding: 10px;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      background: #10101a;
+    }
+    .optout-resource-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+    .optout-resource-name {
+      color: #e0e0e0;
+      font-weight: 600;
+    }
+    .optout-resource-note {
+      color: #888;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .optout-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid #2a5a3a;
+      background: #0f1f18;
+      color: #00ff88;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .optout-inline-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .optout-text-card {
+      padding: 10px;
+      border: 1px dashed #2a2a3a;
+      border-radius: 8px;
+      background: #10101a;
+      color: #9aa0b5;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+    .law-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .law-template {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #10101a;
+      border: 1px solid #2a2a3a;
+      color: #c8ccdb;
+      font-size: 11px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .law-template-copy {
+      margin-top: 8px;
+    }
+    .developer-panel {
+      padding: 12px;
+    }
+    .developer-copy {
+      color: #888;
+      font-size: 11px;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .developer-details {
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      background: #10101a;
+      overflow: hidden;
+    }
+    .developer-details summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 12px;
+      color: #c8ccdb;
+      font-size: 12px;
+      user-select: none;
+    }
+    .developer-details summary::-webkit-details-marker {
+      display: none;
+    }
+    .developer-details[open] summary {
+      border-bottom: 1px solid #2a2a3a;
+    }
+    .developer-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 12px 0;
+    }
     pre.json-block {
       background: #0d0d18;
       padding: 12px;
@@ -427,6 +613,11 @@
       <div class="report-panel">
         <div class="panel-header">Exposure Score</div>
         <div class="score-display" id="scoreDisplay">&mdash;</div>
+        <div class="score-meta" id="scoreMeta"></div>
+        <div class="score-pills" id="scoreSummaryPills"></div>
+        <div class="score-pills" id="scoreInventoryPills"></div>
+        <div class="score-pills" id="scoreCountPills"></div>
+        <div class="score-factors" id="scoreFactors"></div>
       </div>
       <div class="report-panel">
         <div class="panel-header">Kill Chains &mdash; Attack Paths</div>
@@ -437,16 +628,26 @@
         <div class="panel-body" id="actionsList"></div>
       </div>
       <div class="report-panel">
-        <div class="panel-header">Opt-Out Targets</div>
-        <div class="panel-body" id="optOutList"></div>
-      </div>
-      <div class="report-panel">
-        <div class="panel-header">Applicable Laws</div>
+        <div class="panel-header">Applicable Laws & Complaint Templates</div>
         <div class="panel-body" id="lawsList"></div>
       </div>
       <div class="report-panel">
-        <div class="panel-header">Full Report JSON</div>
-        <div class="panel-body"><pre class="json-block" id="fullJson"></pre></div>
+        <div class="panel-header">Privacy Next Steps</div>
+        <div class="panel-body" id="optOutList"></div>
+      </div>
+      <div class="report-panel">
+        <div class="panel-header">Export / Developer Data</div>
+        <div class="panel-body developer-panel">
+          <div class="developer-copy">Raw report data for debugging, export, or later evidence packaging.</div>
+          <details class="developer-details">
+            <summary>Expand raw report JSON</summary>
+            <div class="developer-actions">
+              <button class="optout-btn" type="button" id="copyJsonBtn">Copy JSON</button>
+              <button class="optout-btn" type="button" id="downloadJsonBtn">Download JSON</button>
+            </div>
+            <pre class="json-block" id="fullJson"></pre>
+          </details>
+        </div>
       </div>
     </div>
   </div>
@@ -458,6 +659,8 @@
     let currentScanId = null;
     let seenFindingKeys = new Set();
     let seenAuditKeys = new Set();
+    let complaintTemplates = [];
+    let lastReportJson = '';
 
     // Round-grouped audit state
     let roundEntries = {};   // roundKey -> [entries]
@@ -515,6 +718,85 @@
     function formatEntryType(entryType) {
       if (!entryType) return '';
       return String(entryType).replace(/_/g, ' ');
+    }
+
+    function titleCase(value) {
+      return String(value || '')
+        .split(/[\s_]+/)
+        .filter(Boolean)
+        .map(function(part) {
+          return part.charAt(0).toUpperCase() + part.slice(1);
+        })
+        .join(' ');
+    }
+
+    function renderScoreBreakdown(report) {
+      var breakdown = report.score_breakdown || {};
+      var metaEl = document.getElementById('scoreMeta');
+      var summaryEl = document.getElementById('scoreSummaryPills');
+      var inventoryEl = document.getElementById('scoreInventoryPills');
+      var countsEl = document.getElementById('scoreCountPills');
+      var factorsEl = document.getElementById('scoreFactors');
+      var notes = Array.isArray(breakdown.notes) ? breakdown.notes : [];
+      var methodology = breakdown.methodology || 'Deterministic score.';
+
+      metaEl.innerHTML = escHtml(methodology);
+      if (notes.length) {
+        metaEl.innerHTML += '<div style="margin-top:6px">' + notes.map(escHtml).join(' ') + '</div>';
+      }
+
+      var summaryParts = [];
+      if (breakdown.label) {
+        summaryParts.push('<span class="score-pill">Band: ' + escHtml(titleCase(breakdown.label)) + '</span>');
+      }
+      if (typeof breakdown.finding_count === 'number') {
+        summaryParts.push('<span class="score-pill">Findings scored: ' + escHtml(String(breakdown.unique_finding_count || 0)) + '</span>');
+      }
+      if (typeof breakdown.duplicate_finding_count === 'number' && breakdown.duplicate_finding_count > 0) {
+        summaryParts.push('<span class="score-pill">Duplicates ignored: ' + escHtml(String(breakdown.duplicate_finding_count)) + '</span>');
+      }
+      if (
+        typeof breakdown.raw_total === 'number' &&
+        typeof breakdown.total === 'number' &&
+        breakdown.raw_total > breakdown.total
+      ) {
+        summaryParts.push('<span class="score-pill">Raw points: ' + escHtml(String(breakdown.raw_total)) + '</span>');
+      }
+      Object.keys(breakdown.section_totals || {}).forEach(function(key) {
+        summaryParts.push('<span class="score-pill">' + escHtml(titleCase(key)) + ': +' + escHtml(String(breakdown.section_totals[key])) + '</span>');
+      });
+      summaryEl.innerHTML = summaryParts.join('');
+
+      var inventoryParts = [];
+      (breakdown.data_inventory || []).forEach(function(item) {
+        inventoryParts.push('<span class="score-pill">Data: ' + escHtml(titleCase(item)) + '</span>');
+      });
+      inventoryEl.innerHTML = inventoryParts.join('');
+
+      var countParts = [];
+      Object.keys(breakdown.severity_counts || {}).forEach(function(key) {
+        countParts.push('<span class="score-pill">' + escHtml(titleCase(key)) + ': ' + escHtml(String(breakdown.severity_counts[key])) + '</span>');
+      });
+      Object.keys(breakdown.finding_type_counts || {}).forEach(function(key) {
+        countParts.push('<span class="score-pill">' + escHtml(titleCase(formatEntryType(key))) + ': ' + escHtml(String(breakdown.finding_type_counts[key])) + '</span>');
+      });
+      countsEl.innerHTML = countParts.join('');
+
+      factorsEl.innerHTML = '';
+      (breakdown.factors || []).forEach(function(factor) {
+        var html = '<div class="score-factor">';
+        html += '<div class="score-factor-points">+' + escHtml(String(factor.points || 0)) + '</div>';
+        html += '<div>';
+        html += '<div class="score-factor-label">' + escHtml(factor.label || '') + '</div>';
+        if (factor.detail) {
+          html += '<div class="score-factor-detail">' + escHtml(factor.detail) + '</div>';
+        }
+        html += '</div></div>';
+        factorsEl.innerHTML += html;
+      });
+      if (!breakdown.factors || !breakdown.factors.length) {
+        factorsEl.innerHTML = '<div class="score-factor"><div class="score-factor-detail">No score factors were triggered.</div></div>';
+      }
     }
 
     function renderTraceList(label, items) {
@@ -877,6 +1159,100 @@
       return Array.from(targets.values());
     }
 
+    async function copyTextToClipboard(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (err) {
+        // fall through to legacy copy path
+      }
+
+      var textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'absolute';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      var copied = false;
+      try {
+        copied = document.execCommand('copy');
+      } catch (err) {
+        copied = false;
+      }
+      document.body.removeChild(textarea);
+      return copied;
+    }
+
+    async function handleCopyTemplate(button, text) {
+      var original = button.textContent;
+      var copied = await copyTextToClipboard(text);
+      button.textContent = copied ? 'Copied' : 'Copy Failed';
+      setTimeout(function() {
+        button.textContent = original;
+      }, 1800);
+    }
+
+    async function handleCopyJson() {
+      var button = document.getElementById('copyJsonBtn');
+      if (!button) return;
+      handleCopyTemplate(button, lastReportJson || '');
+    }
+
+    function handleDownloadJson() {
+      if (!lastReportJson) return;
+      var blob = new Blob([lastReportJson], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = (currentScanId ? 'leakipedia-report-' + currentScanId : 'leakipedia-report') + '.json';
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+    }
+
+    function renderPrivacyResources(resources) {
+      if (!Array.isArray(resources) || !resources.length) {
+        return '<div class="optout-text-card">No privacy guidance was generated for this scan.</div>';
+      }
+
+      var html = '<div class="optout-section">';
+      html += '<div class="optout-section-title">Privacy Next Steps</div>';
+      html += '<div class="optout-section-copy">Broker-specific removal links stay attached directly to the findings above. This section focuses on the broader privacy steps that matter after the scan.</div>';
+      html += '<div class="optout-directory">';
+
+      resources.forEach(function(resource) {
+        html += '<div class="optout-resource">';
+        html += '<div class="optout-resource-head">';
+        html += '<div class="optout-resource-name">' + escHtml(resource.title || 'Resource') + '</div>';
+        if (resource.recommended) {
+          html += '<span class="optout-tag">Recommended</span>';
+        }
+        html += '</div>';
+        if (resource.blurb) {
+          html += '<div class="optout-resource-note">' + escHtml(resource.blurb) + '</div>';
+        }
+        if (resource.reason) {
+          html += '<div class="optout-resource-note">Why it matters here: ' + escHtml(resource.reason) + '</div>';
+        }
+        if (Array.isArray(resource.links) && resource.links.length) {
+          html += '<div class="optout-inline-links">';
+          resource.links.forEach(function(link) {
+            if (!link || !isHttpUrl(link.url)) return;
+            html += '<a class="optout-btn" href="' + escHtml(link.url) + '" target="_blank" rel="noopener noreferrer">' + escHtml(link.label || 'Open Resource') + '</a>';
+          });
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+
+      html += '</div></div>';
+      return html;
+    }
+
     // ── Hydrate / Report ─────────────────────────────────────────────
 
     function hydrateState(state) {
@@ -906,11 +1282,16 @@
 
       var score = report.exposure_score || 0;
       var scoreEl = document.getElementById('scoreDisplay');
+      var scoreLabel = (((report.score_breakdown || {}).label) || '').toLowerCase();
       var scoreClass = 'score-low';
-      if (score >= 75) scoreClass = 'score-crit';
+      if (scoreLabel === 'critical') scoreClass = 'score-crit';
+      else if (scoreLabel === 'high') scoreClass = 'score-high';
+      else if (scoreLabel === 'medium') scoreClass = 'score-med';
+      else if (score >= 75) scoreClass = 'score-crit';
       else if (score >= 50) scoreClass = 'score-high';
       else if (score >= 25) scoreClass = 'score-med';
       scoreEl.innerHTML = '<span class="' + scoreClass + '">' + score + '</span><span class="score-label">/100 EXPOSURE RISK</span>';
+      renderScoreBreakdown(report);
 
       var chainsEl = document.getElementById('killChains');
       chainsEl.innerHTML = '';
@@ -950,51 +1331,60 @@
         actionsEl.innerHTML += html;
       });
 
-      var optOutEl = document.getElementById('optOutList');
-      optOutEl.innerHTML = '';
-      var optOutTargets = collectOptOutTargets(report.findings || findingsData);
-      optOutTargets.forEach(function(target) {
-        var html = '<div class="optout-card">';
-        html += '<div class="optout-title">' + escHtml(target.name) + '</div>';
-        html += '<div class="optout-meta">' + escHtml(target.description || 'Public-record or broker listing') + '</div>';
-        if (target.dataTypes.length > 0) {
-          html += '<div class="optout-meta">Exposes: ' + escHtml(target.dataTypes.join(', ')) + '</div>';
-        }
-        if (target.verificationStatus) {
-          html += '<div class="optout-meta">Status: ' + escHtml(target.verificationStatus) + '</div>';
-        }
-        html += '<div class="optout-actions">';
-        if (target.searchUrl) {
-          html += '<a class="optout-btn" href="' + escHtml(target.searchUrl) + '" target="_blank" rel="noopener noreferrer">View Listing</a>';
-        }
-        html += '<a class="optout-btn" href="' + escHtml(target.optOutUrl) + '" target="_blank" rel="noopener noreferrer">Open Opt-Out</a>';
-        html += '</div>';
-        if (target.autoCapable) {
-          html += '<div class="optout-badge">Auto-capable</div>';
-        }
-        html += '</div>';
-        optOutEl.innerHTML += html;
-      });
-      if (!optOutTargets.length) {
-        optOutEl.innerHTML = '<div style="padding:12px;color:#666">No direct opt-out targets were identified in this scan.</div>';
-      }
-
       var lawsEl = document.getElementById('lawsList');
       lawsEl.innerHTML = '';
+      complaintTemplates = [];
       (report.applicable_laws || []).forEach(function(law) {
         var html = '<div class="action-item">';
         html += '<strong style="color:#6688cc">' + escHtml(law.law || '') + '</strong> (' + escHtml(law.jurisdiction || '') + ')';
         html += '<div class="action-meta">' + escHtml(law.relevance || '') + '</div>';
+        if (law.complaint_portal && law.complaint_portal.url) {
+          html += '<div class="law-actions">';
+          html += '<a class="action-link" href="' + escHtml(law.complaint_portal.url) + '" target="_blank" rel="noopener noreferrer">Open ' + escHtml(law.complaint_portal.label || 'Complaint Portal') + '</a>';
+          html += '</div>';
+        }
         if (law.user_rights) {
           html += '<div style="margin-top:4px">';
           law.user_rights.forEach(function(r) { html += '<div style="color:#888;font-size:11px">\u2022 ' + escHtml(r) + '</div>'; });
           html += '</div>';
         }
+        if (law.complaint_template) {
+          var templateIndex = complaintTemplates.push(law.complaint_template) - 1;
+          html += '<div class="law-template">' + escHtml(law.complaint_template) + '</div>';
+          html += '<div class="law-template-copy"><button class="optout-btn" type="button" data-template-index="' + templateIndex + '">Copy Complaint Template</button></div>';
+        }
         html += '</div>';
         lawsEl.innerHTML += html;
       });
+      if (!report.applicable_laws || !report.applicable_laws.length) {
+        lawsEl.innerHTML = '<div class="optout-text-card">No state-specific law guidance was generated for this scan.</div>';
+      }
 
-      document.getElementById('fullJson').textContent = JSON.stringify(report, null, 2);
+      Array.prototype.forEach.call(
+        lawsEl.querySelectorAll('button[data-template-index]'),
+        function(button) {
+          button.addEventListener('click', function() {
+            var templateIndex = parseInt(button.getAttribute('data-template-index') || '-1', 10);
+            var templateText = complaintTemplates[templateIndex] || '';
+            handleCopyTemplate(button, templateText);
+          });
+        }
+      );
+
+      var optOutEl = document.getElementById('optOutList');
+      optOutEl.innerHTML = renderPrivacyResources(report.privacy_resources || []);
+
+      lastReportJson = JSON.stringify(report, null, 2);
+      document.getElementById('fullJson').textContent = lastReportJson;
+
+      var copyJsonBtn = document.getElementById('copyJsonBtn');
+      if (copyJsonBtn) {
+        copyJsonBtn.onclick = handleCopyJson;
+      }
+      var downloadJsonBtn = document.getElementById('downloadJsonBtn');
+      if (downloadJsonBtn) {
+        downloadJsonBtn.onclick = handleDownloadJson;
+      }
     }
 
     // ── WebSocket & Init ─────────────────────────────────────────────

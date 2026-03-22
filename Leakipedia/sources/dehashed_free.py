@@ -43,15 +43,10 @@ class LeakCheckSource(BaseSource):
         email = input_value.strip().lower()
         findings: list[Finding] = []
         checks = []
-        request = getattr(self, "scan_request", None)
 
-        if getattr(request, "use_emailrep", False):
-            checks.append(self._check_emailrep(email))
+        checks.append(self._check_emailrep(email))
 
-        if (
-            getattr(request, "use_breachdirectory", False)
-            and BREACHDIRECTORY_RAPIDAPI_KEY
-        ):
+        if BREACHDIRECTORY_RAPIDAPI_KEY:
             checks.append(self._check_breachdirectory(email))
 
         if not checks:

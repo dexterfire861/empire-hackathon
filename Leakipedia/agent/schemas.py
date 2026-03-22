@@ -65,6 +65,40 @@ class Lead(BaseModel):
     why: str = ""
 
 
+class ScoreFactor(BaseModel):
+    category: Literal[
+        "severity",
+        "breadth",
+        "escalation",
+        "data_exposure",
+        "attack_surfaces",
+        "accessibility",
+    ]
+    label: str
+    points: int = Field(default=0, ge=0)
+    detail: str = ""
+
+
+class ScoreBreakdown(BaseModel):
+    version: str = "deterministic_v3"
+    methodology: str = (
+        "Deterministic score based on deduplicated findings, confirmed sensitive data exposure, "
+        "viable attack surfaces, and how discoverable the data is. No LLM-generated score is used."
+    )
+    total: int = Field(default=0, ge=0, le=100)
+    raw_total: int = Field(default=0, ge=0)
+    label: Literal["low", "medium", "high", "critical"] = "low"
+    finding_count: int = Field(default=0, ge=0)
+    unique_finding_count: int = Field(default=0, ge=0)
+    duplicate_finding_count: int = Field(default=0, ge=0)
+    section_totals: dict[str, int] = Field(default_factory=dict)
+    severity_counts: dict[str, int] = Field(default_factory=dict)
+    finding_type_counts: dict[str, int] = Field(default_factory=dict)
+    factors: list[ScoreFactor] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+    data_inventory: list[str] = Field(default_factory=list)
+
+
 class ScanReport(BaseModel):
     scan_id: str
     status: str = "complete"
@@ -72,6 +106,7 @@ class ScanReport(BaseModel):
     findings: list[Finding] = Field(default_factory=list)
     lead_registry: list[Lead] = Field(default_factory=list)
     exposure_score: int = Field(default=0, ge=0, le=100)
+    score_breakdown: ScoreBreakdown = Field(default_factory=ScoreBreakdown)
     kill_chains: list[dict] = Field(default_factory=list)  # attack path narratives
     actions: list[dict] = Field(default_factory=list)  # prioritized remediation steps
     audit_trail: list[dict] = Field(
@@ -80,4 +115,5 @@ class ScanReport(BaseModel):
     applicable_laws: list[dict] = Field(
         default_factory=list
     )  # based on location
+    privacy_resources: list[dict] = Field(default_factory=list)
     scan_duration_seconds: float = 0.0

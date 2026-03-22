@@ -22,9 +22,13 @@ from Leakipedia.config import (
     SUBPROCESS_TIMEOUT,
 )
 from Leakipedia.agent.username_gen import build_username_candidate_sets
-from Leakipedia.risk.actions import generate_actions, get_applicable_laws
+from Leakipedia.risk.actions import generate_actions
 from Leakipedia.risk.kill_chain import generate_kill_chains
-from Leakipedia.risk.scorer import compute_exposure_score
+from Leakipedia.risk.resource_catalog import (
+    build_applicable_laws,
+    build_privacy_resources,
+)
+from Leakipedia.risk.scorer import compute_exposure_score_breakdown
 from Leakipedia.sources import SOURCE_REGISTRY
 
 logger = logging.getLogger("Leakipedia.orchestrator")
@@ -80,11 +84,8 @@ class Orchestrator:
         if not source_cls.is_available():
             return False
 
-        req = self.state.request
         if name == "leakcheck":
-            return req.use_emailrep or (
-                req.use_breachdirectory and bool(BREACHDIRECTORY_RAPIDAPI_KEY)
-            )
+            return True
 
         if name == "paste_search":
             return True
@@ -913,14 +914,18 @@ class Orchestrator:
 
         findings = self.state.findings
 
-        # Deterministic risk scoring (fallback)
-        fallback_score = compute_exposure_score(findings)
+        # Deterministic risk scoring is the source of truth for the final score.
+        score_breakdown = compute_exposure_score_breakdown(findings)
+        deterministic_score = score_breakdown.total
         fallback_chains = generate_kill_chains(findings)
         fallback_actions = generate_actions(findings, self.state.request.location)
-        applicable_laws = get_applicable_laws(self.state.request.location)
+        applicable_laws = build_applicable_laws(
+            self.state.request.location, findings, self.state.request
+        )
+        privacy_resources = build_privacy_resources(findings)
 
-        # Try to get Claude's assessment
-        exposure_score = fallback_score
+        # Use Claude for narrative attack paths and actions, but not score generation.
+        exposure_score = deterministic_score
         kill_chains = fallback_chains
         actions = fallback_actions
         executive_summary = ""
@@ -955,23 +960,19 @@ class Orchestrator:
                 # Parse Claude's JSON response
                 assessment = json.loads(text)
 
-                exposure_score = assessment.get("exposure_score", fallback_score)
                 executive_summary = assessment.get("executive_summary", "")
 
                 if assessment.get("kill_chains"):
                     kill_chains = assessment["kill_chains"]
                 if assessment.get("actions"):
                     actions = assessment["actions"]
-                if assessment.get("applicable_laws"):
-                    applicable_laws = assessment["applicable_laws"]
-
             except (json.JSONDecodeError, anthropic.APIError) as e:
                 logger.warning(
                     "Failed to parse Claude's risk assessment, using fallback: %s", e
                 )
                 executive_summary = (
                     f"Leakipedia scanned {len(findings)} data points across multiple sources. "
-                    f"The deterministic risk score is {fallback_score}/100."
+                    f"The deterministic risk score is {deterministic_score}/100."
                 )
 
         scan_duration = time.time() - self.start_time
@@ -982,10 +983,12 @@ class Orchestrator:
             findings=findings,
             lead_registry=self.state.lead_registry,
             exposure_score=min(100, max(0, exposure_score)),
+            score_breakdown=score_breakdown,
             kill_chains=kill_chains,
             actions=actions,
             audit_trail=self.state.audit_trail,
             applicable_laws=applicable_laws,
+            privacy_resources=privacy_resources,
             scan_duration_seconds=round(scan_duration, 2),
         )
 
@@ -995,6 +998,8 @@ class Orchestrator:
             {
                 "type": "risk_assessment",
                 "score": report.exposure_score,
+                "score_label": report.score_breakdown.label,
+                "score_method": report.score_breakdown.version,
                 "kill_chains": report.kill_chains,
                 "actions_count": len(report.actions),
             }

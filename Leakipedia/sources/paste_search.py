@@ -266,5 +266,4 @@ class PasteSearchSource(BaseSource):
         return findings
 
     def _intelx_enabled(self) -> bool:
-        request = getattr(self, "scan_request", None)
-        return bool(INTELX_API_KEY) and bool(getattr(request, "use_intelx", False))
+        return bool(INTELX_API_KEY)

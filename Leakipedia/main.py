@@ -285,6 +285,7 @@ async def get_actions(scan_id: str):
     return {
         "actions": state.report.actions,
         "applicable_laws": state.report.applicable_laws,
+        "privacy_resources": state.report.privacy_resources,
     }
 
 

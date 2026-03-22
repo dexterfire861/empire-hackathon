@@ -57,10 +57,10 @@ phone), Medium (email on a site), Low (public professional info), Info (benign)
 After all scanning is complete, generate:
 1. KILL CHAINS: Identify 1-3 attack paths where multiple findings chain together to enable identity \
 theft, account takeover, or social engineering. Be specific about which findings combine and how.
-2. EXPOSURE SCORE: Rate 0-100 based on: number of findings, severity distribution, number of \
-critical/high findings, how many attack paths exist.
-3. ACTIONS: For each finding, recommend a specific remediation step. Include the exact opt-out URL \
+2. ACTIONS: For each finding, recommend a specific remediation step. Include the exact opt-out URL \
 or action needed. If the user provided their location, cite the applicable state privacy law.
+The exposure score itself is computed separately by the application using deterministic rules. Do \
+not invent or override a numeric score in your response.
 
 Always explain your reasoning. Every claim must trace back to a specific source. If you're uncertain \
 about a finding, say so explicitly. Only search usernames that are user-confirmed, explicitly \
@@ -73,7 +73,6 @@ with ONLY a valid JSON object (no markdown, no backticks, no explanation outside
 Use this exact structure:
 
 {
-  "exposure_score": <integer 0-100>,
   "executive_summary": "<2-3 paragraph narrative summarizing the person's digital exposure>",
   "kill_chains": [
     {
