@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Literal
+import uuid
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -26,6 +27,7 @@ class ScanRequest(BaseModel):
 
 
 class Finding(BaseModel):
+    finding_id: str = Field(default_factory=lambda: uuid.uuid4().hex[:12])
     source: str  # e.g., "hibp", "maigret", "holehe"
     source_url: str  # URL where the data was found
     finding_type: str  # "breach", "account_exists", "document", "phone_exposure", etc.
@@ -42,11 +44,33 @@ class Finding(BaseModel):
     severity: Literal["critical", "high", "medium", "low", "info"]
 
 
+class Lead(BaseModel):
+    lead_id: str = Field(default_factory=lambda: uuid.uuid4().hex[:12])
+    type: str
+    value: str
+    origin_kind: str
+    status: Literal[
+        "confirmed",
+        "auto_search",
+        "deferred",
+        "promoted",
+        "searched",
+        "pending_user_confirmation",
+        "rejected",
+    ]
+    confidence: Literal["high", "medium", "low"]
+    round_discovered: int = 0
+    supporting_finding_ids: list[str] = Field(default_factory=list)
+    supporting_sources: list[str] = Field(default_factory=list)
+    why: str = ""
+
+
 class ScanReport(BaseModel):
     scan_id: str
     status: str = "complete"
     inputs: ScanRequest
     findings: list[Finding] = Field(default_factory=list)
+    lead_registry: list[Lead] = Field(default_factory=list)
     exposure_score: int = Field(default=0, ge=0, le=100)
     kill_chains: list[dict] = Field(default_factory=list)  # attack path narratives
     actions: list[dict] = Field(default_factory=list)  # prioritized remediation steps

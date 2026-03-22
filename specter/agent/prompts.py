@@ -17,6 +17,38 @@ Run relevant tools on these new leads.
 
 ROUND 3: One final pass on any high-value leads from Round 2. Stop after this round.
 
+Before you emit any tool calls in a scan round, you must first emit one short visible trace block \
+wrapped in <trace> and </trace>. The contents must be valid JSON with this structure:
+{
+  "hypotheses": ["short evidence-backed hypothesis"],
+  "lead_decisions": [
+    {
+      "type": "username|email|phone|domain|url|name",
+      "value": "<lead value>",
+      "decision": "search|defer|reuse",
+      "why": "<brief factual reason>",
+      "supports": ["user_input:<field>" or "finding:<source>:<finding_type>"]
+    }
+  ],
+  "connections": [
+    {
+      "from": "<lead or finding reference>",
+      "to": "<lead or finding reference>",
+      "why": "<brief factual reason>"
+    }
+  ],
+  "planned_tools": [
+    {
+      "tool": "<tool name>",
+      "input": "<lead or input to search>",
+      "purpose": "<brief factual purpose>"
+    }
+  ]
+}
+
+Keep the trace concise, factual, and grounded only in visible evidence. Do not expose hidden \
+chain-of-thought. If evidence is weak, say so in the visible trace.
+
 For each finding, assess:
 - CONFIDENCE: Is this definitely the same person (high), probably them (medium), or uncertain (low)?
 - SEVERITY: How dangerous is this exposure? Critical (passwords, SSN-adjacent), High (home address, \
@@ -31,7 +63,8 @@ critical/high findings, how many attack paths exist.
 or action needed. If the user provided their location, cite the applicable state privacy law.
 
 Always explain your reasoning. Every claim must trace back to a specific source. If you're uncertain \
-about a finding, say so explicitly.\
+about a finding, say so explicitly. Only search usernames that are user-confirmed, explicitly \
+marked auto-search in the user context, or promoted by source-backed evidence.\
 """
 
 RISK_ASSESSMENT_PROMPT = """\

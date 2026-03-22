@@ -90,6 +90,7 @@ async def get_scan(scan_id: str):
         "status": state.status.value,
         "findings_count": len(state.findings),
         "findings": [f.model_dump(mode="json") for f in state.findings],
+        "lead_registry": [l.model_dump(mode="json") for l in state.lead_registry],
         "audit_trail": state.audit_trail,
     }
 

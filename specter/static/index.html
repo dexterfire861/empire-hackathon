@@ -109,11 +109,75 @@
       border-bottom: 1px solid #1a1a2e;
     }
     .audit-entry:last-child { border-bottom: none; }
+    .trace-entry-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
     .audit-step { color: #00ff88; font-weight: bold; }
     .audit-action { color: #e0e0e0; }
     .audit-result { color: #888; font-size: 11px; margin-top: 2px; }
     .audit-leads { color: #ffaa00; font-size: 11px; }
     .audit-reasoning { color: #666; font-size: 11px; font-style: italic; }
+    .trace-type {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border: 1px solid #2a2a3a;
+      color: #9aa0b5;
+      background: #10101a;
+    }
+    .trace-round {
+      color: #7c7c90;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .trace-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .trace-pill {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid #2a2a3a;
+      color: #c8ccdb;
+      background: #10101a;
+      font-size: 10px;
+    }
+    .trace-block {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #9aa0b5;
+    }
+    .trace-block strong {
+      color: #c8ccdb;
+      font-weight: 600;
+    }
+    .trace-list {
+      margin-top: 4px;
+      color: #888;
+    }
+    .trace-list-item {
+      margin-top: 2px;
+      padding-left: 12px;
+      position: relative;
+    }
+    .trace-list-item::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #6688cc;
+    }
+    .trace-connection { color: #7db6ff; font-size: 11px; margin-top: 6px; }
+    .trace-confidence { color: #ffaa00; font-size: 11px; margin-top: 4px; }
 
     /* ── Findings ── */
     .finding-entry {
@@ -282,7 +346,7 @@
     <!-- Live Panels -->
     <div class="panels" id="panels">
       <div class="panel">
-        <div class="panel-header">Audit Trail (Live)</div>
+        <div class="panel-header">Decision Trace (Live)</div>
         <div class="panel-body" id="auditTrail"></div>
       </div>
       <div class="panel">
@@ -414,19 +478,10 @@
           break;
 
         case 'tool_call':
-          addAuditEntry({
-            step: '→',
-            action: `Calling ${event.tool}`,
-            result_summary: JSON.stringify(event.input),
-          });
+          setStatus(`Calling ${event.tool}...`, `Findings: ${findingsCount}`);
           break;
 
         case 'tool_result':
-          addAuditEntry({
-            step: '✓',
-            action: `${event.tool} completed`,
-            result_summary: `${event.finding_count} finding(s)`,
-          });
           break;
 
         case 'finding':
@@ -444,11 +499,6 @@
             `Round ${event.round} complete`,
             `Total findings: ${event.findings_count}, New leads: ${event.new_leads}`
           );
-          addAuditEntry({
-            step: '●',
-            action: `Round ${event.round} complete`,
-            result_summary: `${event.findings_count} findings, ${event.new_leads} new leads`,
-          });
           break;
 
         case 'risk_assessment':
@@ -485,12 +535,58 @@
       const div = document.createElement('div');
       div.className = 'audit-entry';
 
-      let html = `<span class="audit-step">[${entry.step || '•'}]</span> <span class="audit-action">${escHtml(entry.action || '')}</span>`;
+      const entryType = formatEntryType(entry.entry_type);
+      let html = `<div class="trace-entry-header"><span class="audit-step">[${escHtml(String(entry.step || '•'))}]</span>`;
+      if (entryType) {
+        html += `<span class="trace-type">${escHtml(entryType)}</span>`;
+      }
+      html += `<span class="audit-action">${escHtml(entry.action || '')}</span>`;
+      if (entry.round !== undefined && entry.round !== null) {
+        html += `<span class="trace-round">R${escHtml(String(entry.round))}</span>`;
+      }
+      html += `</div>`;
+
       if (entry.result_summary) {
         html += `<div class="audit-result">${escHtml(entry.result_summary)}</div>`;
       }
+      if (entry.lead) {
+        html += renderLead(entry.lead);
+      }
+      if (entry.hypotheses && entry.hypotheses.length > 0) {
+        html += renderTraceList('Hypotheses', entry.hypotheses);
+      }
+      if (entry.lead_decisions && entry.lead_decisions.length > 0) {
+        const decisions = entry.lead_decisions.map(decision => {
+          const supports = Array.isArray(decision.supports) && decision.supports.length
+            ? ` [${decision.supports.join(', ')}]`
+            : '';
+          return `${decision.type}:${decision.value} → ${decision.decision} — ${decision.why || 'no reason'}${supports}`;
+        });
+        html += renderTraceList('Lead Decisions', decisions);
+      }
+      if (entry.planned_tools && entry.planned_tools.length > 0) {
+        const planned = entry.planned_tools.map(tool => {
+          return `${tool.tool || 'tool'} on ${tool.input || 'input'} — ${tool.purpose || 'planned search'}`;
+        });
+        html += renderTraceList('Planned Tools', planned);
+      }
+      if (entry.supports && entry.supports.length > 0) {
+        html += renderTraceList('Supports', entry.supports);
+      }
       if (entry.new_leads && entry.new_leads.length > 0) {
         html += `<div class="audit-leads">Leads: ${escHtml(entry.new_leads.join(', '))}</div>`;
+      }
+      if (entry.connection) {
+        html += `<div class="trace-connection">${escHtml(entry.connection.from || 'unknown')} → ${escHtml(entry.connection.to || 'unknown')} · ${escHtml(entry.connection.why || '')}</div>`;
+      }
+      if (entry.connections && entry.connections.length > 0) {
+        const connections = entry.connections.map(connection => {
+          return `${connection.from || 'unknown'} → ${connection.to || 'unknown'} — ${connection.why || ''}`;
+        });
+        html += renderTraceList('Connections', connections);
+      }
+      if (entry.confidence_change) {
+        html += `<div class="trace-confidence">Confidence: ${escHtml(entry.confidence_change.from || '?')} → ${escHtml(entry.confidence_change.to || '?')}</div>`;
       }
       if (entry.reasoning) {
         html += `<div class="audit-reasoning">${escHtml(entry.reasoning)}</div>`;
@@ -510,6 +606,9 @@
       let html = `<span class="finding-source">[${escHtml(finding.source)}]</span> `;
       html += `<span class="${sevClass}">${escHtml(finding.severity.toUpperCase())}</span> `;
       html += `— ${escHtml(finding.finding_type)}`;
+      if (finding.finding_id) {
+        html += `<div class="finding-detail">ID ${escHtml(finding.finding_id)} · ${escHtml(finding.confidence || 'unknown')} confidence</div>`;
+      }
       html += `<div class="finding-detail">${escHtml(finding.source_url)}</div>`;
 
       if (finding.leads_to && finding.leads_to.length > 0) {
@@ -613,6 +712,35 @@
       const d = document.createElement('div');
       d.textContent = s;
       return d.innerHTML;
+    }
+
+    function formatEntryType(entryType) {
+      if (!entryType) return '';
+      return String(entryType).replaceAll('_', ' ');
+    }
+
+    function renderLead(lead) {
+      const pills = [];
+      pills.push(`<span class="trace-pill">${escHtml(`${lead.type}:${lead.value}`)}</span>`);
+      if (lead.origin_kind) pills.push(`<span class="trace-pill">${escHtml(lead.origin_kind)}</span>`);
+      if (lead.status) pills.push(`<span class="trace-pill">${escHtml(lead.status)}</span>`);
+      if (lead.confidence) pills.push(`<span class="trace-pill">${escHtml(`${lead.confidence} confidence`)}</span>`);
+
+      let html = `<div class="trace-pills">${pills.join('')}</div>`;
+      if (lead.why) {
+        html += `<div class="trace-block"><strong>Why:</strong> ${escHtml(lead.why)}</div>`;
+      }
+      return html;
+    }
+
+    function renderTraceList(label, items) {
+      if (!Array.isArray(items) || items.length === 0) return '';
+      let html = `<div class="trace-block"><strong>${escHtml(label)}:</strong></div><div class="trace-list">`;
+      items.forEach(item => {
+        html += `<div class="trace-list-item">${escHtml(item)}</div>`;
+      });
+      html += `</div>`;
+      return html;
     }
   </script>
 </body>
