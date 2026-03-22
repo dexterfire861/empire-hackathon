@@ -217,69 +217,137 @@ GENERIC_LAW = {
     ],
 }
 
+STATE_LAW_REFERENCE_LINKS: dict[str, list[dict]] = {
+    "NY": [
+        {
+            "label": "New York SHIELD Act / Data Breach Reporting",
+            "url": "https://ag.ny.gov/resources/organizations/data-breach-reporting",
+        }
+    ]
+}
+
+GOOGLE_REMOVAL_LINKS = [
+    {
+        "label": "Google Results About You",
+        "url": "https://support.google.com/websearch/answer/12719076",
+    },
+    {
+        "label": "Google Removal Request Form",
+        "url": "https://support.google.com/websearch/troubleshooter/3111061",
+    },
+]
+
+CREDIT_FREEZE_LINKS = [
+    {
+        "label": "FTC Credit Freeze Guide",
+        "url": "https://consumer.ftc.gov/articles/what-know-about-credit-freezes-fraud-alerts",
+    },
+    {
+        "label": "CFPB Credit Freeze Guide",
+        "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-a-credit-freeze-or-security-freeze-on-my-credit-report-en-1341/",
+    },
+]
+
+MFA_GUIDANCE_LINKS = [
+    {"label": "CISA MFA Guide", "url": "https://www.cisa.gov/mfa"},
+    {
+        "label": "NIST Digital Identity Guidelines",
+        "url": "https://pages.nist.gov/800-63-3/",
+    },
+]
+
+PASSWORD_ROTATION_LINKS = [
+    {
+        "label": "NIST Password Guidance",
+        "url": "https://pages.nist.gov/800-63-3/sp800-63b.html",
+    },
+    {
+        "label": "CISA Password Best Practices",
+        "url": "https://www.cisa.gov/secure-our-world/use-strong-passwords",
+    },
+]
+
+EMAIL_ALIAS_LINKS = [
+    {
+        "label": "Apple Hide My Email",
+        "url": "https://support.apple.com/en-us/HT210425",
+    },
+    {"label": "SimpleLogin Alias Guide", "url": "https://simplelogin.io/docs/"},
+]
+
+BROWSER_PRIVACY_LINKS = [
+    {
+        "label": "Global Privacy Control",
+        "url": "https://globalprivacycontrol.org/",
+    },
+    {"label": "Privacy Badger", "url": "https://privacybadger.org/"},
+]
+
+MARKETING_OPT_OUT_LINKS = [
+    {
+        "label": "Acxiom Opt-Out",
+        "url": "https://isapps.acxiom.com/optout/optout.aspx",
+    },
+    {"label": "Epsilon Opt-Out", "url": "https://legal.epsilon.com/optout"},
+    {
+        "label": "Oracle Advertising Privacy Choices",
+        "url": "https://www.oracle.com/legal/privacy/privacy-choices/",
+    },
+]
+
+DATA_BROKER_HELP_LINKS = [
+    {
+        "label": "Consumer Reports Permission Slip",
+        "url": "https://permissionslipcr.com/",
+    },
+    {
+        "label": "EPIC Data Broker Resources",
+        "url": "https://epic.org/issues/consumer-privacy/data-brokers/",
+    },
+]
+
 PRIVACY_RESOURCE_CATALOG = [
     {
         "id": "google_removal",
         "title": "Google Search Removal",
         "blurb": "Use Google’s tools to request removal of public search results that expose personal data.",
-        "links": [
-            {"label": "Google Results About You", "url": "https://support.google.com/websearch/answer/12719076"},
-            {"label": "Google Removal Request Form", "url": "https://support.google.com/websearch/troubleshooter/3111061"},
-        ],
+        "links": GOOGLE_REMOVAL_LINKS,
     },
     {
         "id": "credit_freeze",
         "title": "Credit Freeze",
         "blurb": "Freeze credit and review fraud-alert guidance when the scan found sensitive identity exposures.",
-        "links": [
-            {"label": "FTC Credit Freeze Guide", "url": "https://consumer.ftc.gov/articles/what-know-about-credit-freezes-fraud-alerts"},
-            {"label": "CFPB Credit Freeze Guide", "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-a-credit-freeze-en-349/"},
-        ],
+        "links": CREDIT_FREEZE_LINKS,
     },
     {
         "id": "mfa",
         "title": "Enable 2FA",
         "blurb": "Prioritize email, banking, and social accounts first, and prefer authenticator apps over SMS where possible.",
-        "links": [
-            {"label": "CISA MFA Guide", "url": "https://www.cisa.gov/mfa"},
-            {"label": "NIST Digital Identity Guidelines", "url": "https://pages.nist.gov/800-63-3/"},
-        ],
+        "links": MFA_GUIDANCE_LINKS,
     },
     {
         "id": "password_rotation",
         "title": "Password Rotation",
         "blurb": "Rotate passwords immediately for breached accounts and any credentials you have reused elsewhere.",
-        "links": [
-            {"label": "NIST Password Guidance", "url": "https://pages.nist.gov/800-63-3/sp800-63b.html"},
-            {"label": "CISA Password Best Practices", "url": "https://www.cisa.gov/secure-our-world/use-strong-passwords"},
-        ],
+        "links": PASSWORD_ROTATION_LINKS,
     },
     {
         "id": "email_aliases",
         "title": "Email Aliases",
         "blurb": "Use aliases for future signups so new exposures do not reveal your primary inbox.",
-        "links": [
-            {"label": "Apple Hide My Email", "url": "https://support.apple.com/en-us/HT210425"},
-            {"label": "SimpleLogin Alias Guide", "url": "https://simplelogin.io/docs/"},
-        ],
+        "links": EMAIL_ALIAS_LINKS,
     },
     {
         "id": "browser_privacy",
         "title": "Browser Privacy",
         "blurb": "Turn on Global Privacy Control and tracker blocking to reduce future sale and advertising exposure.",
-        "links": [
-            {"label": "Global Privacy Control", "url": "https://globalprivacycontrol.org/"},
-            {"label": "Privacy Badger", "url": "https://privacybadger.org/"},
-        ],
+        "links": BROWSER_PRIVACY_LINKS,
     },
     {
         "id": "data_broker_help",
         "title": "Data Broker Help",
         "blurb": "Use broker-removal helper services and advocacy resources if manual removals become time-consuming.",
-        "links": [
-            {"label": "Consumer Reports Permission Slip", "url": "https://permissionslipcr.com/"},
-            {"label": "EPIC Data Broker Resources", "url": "https://epic.org/issues/consumer-privacy/data-brokers/"},
-        ],
+        "links": DATA_BROKER_HELP_LINKS,
     },
     {
         "id": "periodic_rescan",
@@ -301,6 +369,19 @@ def resolve_state(location: Optional[str]) -> Optional[str]:
         if name in loc_lower:
             return abbr
     return None
+
+
+def _dedupe_links(links: list[dict]) -> list[dict]:
+    seen: set[str] = set()
+    unique: list[dict] = []
+    for link in links:
+        url = str(link.get("url", "")).strip()
+        label = str(link.get("label", "")).strip()
+        if not url or not label or url in seen:
+            continue
+        seen.add(url)
+        unique.append({"label": label, "url": url})
+    return unique
 
 
 def _summarize_exposure_counts(findings: list[Finding]) -> list[str]:
@@ -326,17 +407,24 @@ def _evidence_lines(findings: list[Finding]) -> list[str]:
     for finding in findings:
         if len(lines) >= 4:
             break
+        prefix = f"[{finding.finding_id}] "
         if finding.finding_type == "data_broker_listing":
             label = finding.data.get("broker_name") or finding.source
-            lines.append(f"- Broker/public-record listing on {label}: {finding.source_url}")
+            lines.append(
+                f"- {prefix}Broker/public-record listing on {label}: {finding.source_url}"
+            )
         elif finding.finding_type == "breach":
             breach_name = finding.data.get("breach_name") or finding.source
-            lines.append(f"- Breach exposure in {breach_name}: {finding.source_url}")
+            lines.append(
+                f"- {prefix}Breach exposure in {breach_name}: {finding.source_url}"
+            )
         elif finding.source == "google_search":
             title = finding.data.get("title") or "Search result"
-            lines.append(f"- Google-indexed result ({title}): {finding.source_url}")
+            lines.append(
+                f"- {prefix}Google-indexed result ({title}): {finding.source_url}"
+            )
         elif finding.finding_type == "document":
-            lines.append(f"- Public document exposure: {finding.source_url}")
+            lines.append(f"- {prefix}Public document exposure: {finding.source_url}")
     return lines
 
 
@@ -347,6 +435,7 @@ def build_complaint_template(
     evidence_lines = _evidence_lines(findings)
     rights = ", ".join(law.get("user_rights", [])[:3])
     summary_text = ", ".join(exposure_summary) if exposure_summary else "public exposure of my personal data"
+    complaint_portal = law.get("complaint_portal") or {}
 
     body = [
         f"Hello, I am {request.full_name} and I am submitting a privacy complaint under the {law.get('law', 'applicable state privacy law')}.",
@@ -355,6 +444,11 @@ def build_complaint_template(
 
     if request.location:
         body.append(f"I am located in {request.location}.")
+
+    if complaint_portal.get("url"):
+        body.append(
+            f"The official complaint portal for this request is {complaint_portal.get('label', 'the state complaint portal')}: {complaint_portal['url']}."
+        )
 
     if evidence_lines:
         body.append("Examples from the scan:")
@@ -377,15 +471,21 @@ def build_applicable_laws(
     state = resolve_state(location)
     if state and state in STATE_PRIVACY_LAWS:
         law = deepcopy(STATE_PRIVACY_LAWS[state])
+        law["rule_id"] = f"state_privacy_{state.lower()}"
         portal = STATE_PRIVACY_PORTALS.get(state)
         if portal:
             law["complaint_portal"] = deepcopy(portal)
-            law["complaint_template"] = build_complaint_template(
-                law, findings, request
-            )
+            law["official_url"] = portal["url"]
+        law["complaint_template"] = build_complaint_template(
+            law, findings, request
+        )
+        law_links = deepcopy(STATE_LAW_REFERENCE_LINKS.get(state, []))
+        if law_links:
+            law["links"] = _dedupe_links(law_links)
         return [law]
 
     generic = deepcopy(GENERIC_LAW)
+    generic["rule_id"] = "state_privacy_generic"
     generic["complaint_template"] = build_complaint_template(
         generic, findings, request
     )
@@ -430,6 +530,7 @@ def build_privacy_resources(findings: list[Finding]) -> list[dict]:
     resources: list[dict] = []
     for entry in PRIVACY_RESOURCE_CATALOG:
         resource = deepcopy(entry)
+        resource["rule_id"] = resource["id"]
         resource["recommended"] = False
         resource["reason"] = ""
 

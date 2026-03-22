@@ -43,7 +43,7 @@ TARGETS = {
         "kind": "search",
     },
     "whitepages_opt_out": {
-        "url_template": "https://www.whitepages.com/suppression-requests",
+        "url_template": "https://www.whitepages.com/suppression_requests",
         "kind": "removal",
     },
     "fastpeoplesearch_search": {

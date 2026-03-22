@@ -116,4 +116,6 @@ class ScanReport(BaseModel):
         default_factory=list
     )  # based on location
     privacy_resources: list[dict] = Field(default_factory=list)
+    decision_summary: list[dict] = Field(default_factory=list)
+    safety_boundaries: list[dict] = Field(default_factory=list)
     scan_duration_seconds: float = 0.0

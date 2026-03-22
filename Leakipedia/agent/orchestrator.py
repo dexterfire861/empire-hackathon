@@ -24,9 +24,18 @@ from Leakipedia.config import (
 from Leakipedia.agent.username_gen import build_username_candidate_sets
 from Leakipedia.risk.actions import generate_actions
 from Leakipedia.risk.kill_chain import generate_kill_chains
+from Leakipedia.risk.provenance import (
+    annotate_actions,
+    annotate_kill_chains,
+    annotate_laws,
+    annotate_privacy_resources,
+    build_decision_summary,
+    build_safety_boundaries,
+)
 from Leakipedia.risk.resource_catalog import (
     build_applicable_laws,
     build_privacy_resources,
+    resolve_state,
 )
 from Leakipedia.risk.scorer import compute_exposure_score_breakdown
 from Leakipedia.sources import SOURCE_REGISTRY
@@ -919,15 +928,28 @@ class Orchestrator:
         deterministic_score = score_breakdown.total
         fallback_chains = generate_kill_chains(findings)
         fallback_actions = generate_actions(findings, self.state.request.location)
-        applicable_laws = build_applicable_laws(
+        raw_laws = build_applicable_laws(
             self.state.request.location, findings, self.state.request
         )
-        privacy_resources = build_privacy_resources(findings)
+        raw_privacy_resources = build_privacy_resources(findings)
+        location_matched = resolve_state(self.state.request.location) is not None
 
         # Use Claude for narrative attack paths and actions, but not score generation.
         exposure_score = deterministic_score
-        kill_chains = fallback_chains
-        actions = fallback_actions
+        kill_chains = annotate_kill_chains(fallback_chains, findings)
+        actions = annotate_actions(fallback_actions, findings)
+        applicable_laws = annotate_laws(raw_laws, findings, location_matched)
+        privacy_resources = annotate_privacy_resources(
+            raw_privacy_resources, findings
+        )
+        decision_summary = build_decision_summary(
+            findings,
+            score_breakdown,
+            kill_chains,
+            actions,
+            applicable_laws,
+        )
+        safety_boundaries = build_safety_boundaries(findings)
         executive_summary = ""
 
         if findings:
@@ -961,11 +983,6 @@ class Orchestrator:
                 assessment = json.loads(text)
 
                 executive_summary = assessment.get("executive_summary", "")
-
-                if assessment.get("kill_chains"):
-                    kill_chains = assessment["kill_chains"]
-                if assessment.get("actions"):
-                    actions = assessment["actions"]
             except (json.JSONDecodeError, anthropic.APIError) as e:
                 logger.warning(
                     "Failed to parse Claude's risk assessment, using fallback: %s", e
@@ -974,6 +991,38 @@ class Orchestrator:
                     f"Leakipedia scanned {len(findings)} data points across multiple sources. "
                     f"The deterministic risk score is {deterministic_score}/100."
                 )
+
+        for law in applicable_laws[:2]:
+            await self._log_audit(
+                entry_type="rule_triggered",
+                round=rounds_completed,
+                action=f"Rule triggered: {law.get('law', 'Applicable law')}",
+                result_summary=law.get("reason", ""),
+                supports=law.get("supporting_finding_ids", []),
+                reasoning=law.get("uncertainty_note", ""),
+            )
+
+        for action in actions[:3]:
+            await self._log_audit(
+                entry_type="decision_receipt",
+                round=rounds_completed,
+                action=f"Action generated: {action.get('category', 'general')}",
+                result_summary=action.get("action", ""),
+                supports=action.get("supporting_finding_ids", []),
+                reasoning=action.get("reason", ""),
+            )
+
+        for resource in privacy_resources:
+            if not resource.get("recommended"):
+                continue
+            await self._log_audit(
+                entry_type="rule_triggered",
+                round=rounds_completed,
+                action=f"Resource recommended: {resource.get('title', 'Resource')}",
+                result_summary=resource.get("reason", ""),
+                supports=resource.get("supporting_finding_ids", []),
+                reasoning=resource.get("uncertainty_note", ""),
+            )
 
         scan_duration = time.time() - self.start_time
 
@@ -989,6 +1038,8 @@ class Orchestrator:
             audit_trail=self.state.audit_trail,
             applicable_laws=applicable_laws,
             privacy_resources=privacy_resources,
+            decision_summary=decision_summary,
+            safety_boundaries=safety_boundaries,
             scan_duration_seconds=round(scan_duration, 2),
         )
 
