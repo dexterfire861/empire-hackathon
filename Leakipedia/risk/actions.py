@@ -145,7 +145,7 @@ MFA_GUIDANCE_LINKS = [
 
 CREDIT_FREEZE_LINKS = [
     {"label": "FTC Credit Freeze Guide", "url": "https://consumer.ftc.gov/articles/what-know-about-credit-freezes-fraud-alerts"},
-    {"label": "CFPB Credit Freeze Guide", "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-a-credit-freeze-en-349/"},
+    {"label": "CFPB Credit Freeze Guide", "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-a-credit-freeze-or-security-freeze-on-my-credit-report-en-1341/"},
 ]
 
 GOOGLE_REMOVAL_LINKS = [

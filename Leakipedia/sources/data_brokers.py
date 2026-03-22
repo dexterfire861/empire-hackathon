@@ -17,7 +17,7 @@ DATA_BROKER_SITES = [
     {
         "name": "Whitepages",
         "search_url": "https://www.whitepages.com/name/{name}",
-        "opt_out": "https://www.whitepages.com/suppression-requests",
+        "opt_out": "https://www.whitepages.com/suppression_requests",
         "description": "Aggregates phone, address, and family member data from public records",
         "data_types": ["name", "phone", "address", "relatives", "age"],
     },
@@ -38,7 +38,7 @@ DATA_BROKER_SITES = [
     {
         "name": "BeenVerified",
         "search_url": "https://www.beenverified.com/people/{name}/",
-        "opt_out": "https://www.beenverified.com/app/optout/search",
+        "opt_out": "https://www.beenverified.com/optout/",
         "description": "Background check service with criminal records, assets, and social media",
         "data_types": ["name", "phone", "address", "criminal_records", "assets", "social_profiles"],
     },
@@ -52,7 +52,7 @@ DATA_BROKER_SITES = [
     {
         "name": "Intelius",
         "search_url": "https://www.intelius.com/people-search/{name}/",
-        "opt_out": "https://www.intelius.com/opt-out",
+        "opt_out": "https://app.intelius.com/privacy-center/?",
         "description": "Background check and people search with comprehensive public records",
         "data_types": ["name", "phone", "address", "criminal_records", "relatives"],
     },

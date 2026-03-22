@@ -60,7 +60,7 @@ TARGETS = {
     },
     "whitepages_opt_out": {
         "kind": "removal",
-        "url_template": "https://www.whitepages.com/suppression-requests",
+        "url_template": "https://www.whitepages.com/suppression_requests",
         "result_markers": [
             "suppression request",
             "remove my info",

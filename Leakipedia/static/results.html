@@ -240,8 +240,21 @@
     .finding-entry {
       padding: 8px 0;
       border-bottom: 1px solid #1a1a2e;
+      scroll-margin-top: 96px;
     }
     .finding-entry:last-child { border-bottom: none; }
+    .finding-entry.finding-severe {
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid #2d2530;
+      border-left: 3px solid #ff6600;
+      border-radius: 10px;
+      background: #121019;
+    }
+    .finding-entry.finding-severe.finding-critical {
+      border-left-color: #ff3333;
+      background: #181012;
+    }
     .finding-source {
       display: inline-block;
       padding: 2px 8px;
@@ -252,6 +265,70 @@
       font-weight: bold;
       font-size: 12px;
       letter-spacing: 0.5px;
+    }
+    .finding-summary {
+      margin-top: 8px;
+      color: #dbe1ea;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .finding-evidence {
+      margin-top: 10px;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      background: #10101a;
+      overflow: hidden;
+    }
+    .finding-evidence-row {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 10px;
+      padding: 8px 10px;
+      border-bottom: 1px solid #1a1a2e;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .finding-evidence-row:last-child {
+      border-bottom: none;
+    }
+    .finding-evidence-label {
+      color: #7c8496;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+    }
+    .finding-evidence-value {
+      color: #c8d2de;
+      word-break: break-word;
+    }
+    .finding-more {
+      margin-top: 10px;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      background: #10101a;
+      overflow: hidden;
+    }
+    .finding-more summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 10px 12px;
+      color: #9aa7b8;
+      font-size: 11px;
+      user-select: none;
+    }
+    .finding-more summary::-webkit-details-marker {
+      display: none;
+    }
+    .finding-more[open] summary {
+      border-bottom: 1px solid #2a2a3a;
+    }
+    .finding-more pre {
+      margin: 0;
+      padding: 12px;
+      background: #0d0d18;
+      color: #aeb8c4;
+      font-size: 11px;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
     .severity-critical { color: #ff3333; }
     .severity-high { color: #ff6600; }
@@ -383,6 +460,142 @@
     .action-link:hover {
       border-color: #7db6ff;
       color: #a8d0ff;
+    }
+    .conclusion-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .conclusion-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #2a2a3a;
+      background: #10101a;
+      color: #c8d2de;
+      font-size: 10px;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+    }
+    .conclusion-badge.badge-high {
+      color: #81f2c8;
+      border-color: #1e4d3f;
+    }
+    .conclusion-badge.badge-medium {
+      color: #ffd36c;
+      border-color: #5d4b20;
+    }
+    .conclusion-badge.badge-low {
+      color: #ff8d8d;
+      border-color: #5a2e2e;
+    }
+    .conclusion-badge.badge-review {
+      color: #ffb86b;
+      border-color: #5b3f21;
+    }
+    .conclusion-why,
+    .conclusion-uncertainty,
+    .conclusion-evidence,
+    .conclusion-rule {
+      margin-top: 8px;
+      color: #9aa7b8;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+    .conclusion-why strong,
+    .conclusion-uncertainty strong,
+    .conclusion-evidence strong,
+    .conclusion-rule strong {
+      color: #e0e0e0;
+    }
+    .evidence-details {
+      margin-top: 8px;
+      border: 1px solid #2a2a3a;
+      border-radius: 8px;
+      background: #10101a;
+      overflow: hidden;
+    }
+    .evidence-details summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 10px 12px;
+      color: #c8d2de;
+      font-size: 11px;
+      user-select: none;
+    }
+    .evidence-details summary::-webkit-details-marker {
+      display: none;
+    }
+    .evidence-details[open] summary {
+      border-bottom: 1px solid #2a2a3a;
+    }
+    .evidence-details-body {
+      padding: 10px 12px 12px;
+    }
+    .evidence-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .evidence-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid #2a2a3a;
+      background: #10101a;
+      color: #7db6ff;
+      font-size: 11px;
+      text-decoration: none;
+    }
+    .evidence-link:hover {
+      border-color: #7db6ff;
+      color: #a8d0ff;
+    }
+    .evidence-source-link {
+      color: #81f2c8;
+    }
+    .decision-card {
+      padding: 12px;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .decision-card:last-child {
+      border-bottom: none;
+    }
+    .decision-title {
+      color: #e0e0e0;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .decision-summary {
+      margin-top: 6px;
+      color: #dbe1ea;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .safety-card {
+      padding: 12px;
+      border-bottom: 1px solid #1a1a2e;
+    }
+    .safety-card:last-child {
+      border-bottom: none;
+    }
+    .safety-title {
+      color: #e0e0e0;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .safety-copy {
+      margin-top: 8px;
+      color: #c8d2de;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .safety-copy strong {
+      color: #81f2c8;
     }
     .optout-card {
       padding: 12px;
@@ -620,6 +833,10 @@
         <div class="score-factors" id="scoreFactors"></div>
       </div>
       <div class="report-panel">
+        <div class="panel-header">Decision Summary</div>
+        <div class="panel-body" id="decisionSummaryList"></div>
+      </div>
+      <div class="report-panel">
         <div class="panel-header">Kill Chains &mdash; Attack Paths</div>
         <div class="panel-body" id="killChains"></div>
       </div>
@@ -636,9 +853,16 @@
         <div class="panel-body" id="optOutList"></div>
       </div>
       <div class="report-panel">
+        <div class="panel-header">Safety &amp; Boundaries</div>
+        <div class="panel-body" id="safetyBoundariesList"></div>
+      </div>
+      <div class="report-panel">
         <div class="panel-header">Export / Developer Data</div>
         <div class="panel-body developer-panel">
-          <div class="developer-copy">Raw report data for debugging, export, or later evidence packaging.</div>
+          <div class="developer-copy">Download a human-readable evidence packet first. Raw JSON stays available for debugging, exports, and future automation.</div>
+          <div class="developer-actions">
+            <button class="optout-btn" type="button" id="downloadEvidenceBtn">Download Evidence Packet</button>
+          </div>
           <details class="developer-details">
             <summary>Expand raw report JSON</summary>
             <div class="developer-actions">
@@ -661,6 +885,7 @@
     let seenAuditKeys = new Set();
     let complaintTemplates = [];
     let lastReportJson = '';
+    let lastEvidencePacket = '';
 
     // Round-grouped audit state
     let roundEntries = {};   // roundKey -> [entries]
@@ -728,6 +953,244 @@
           return part.charAt(0).toUpperCase() + part.slice(1);
         })
         .join(' ');
+    }
+
+    function getFindingById(findingId) {
+      for (var i = 0; i < findingsData.length; i++) {
+        if (findingsData[i] && findingsData[i].finding_id === findingId) {
+          return findingsData[i];
+        }
+      }
+      return null;
+    }
+
+    function getFindingDisplaySource(finding) {
+      var data = (finding && finding.data) || {};
+      return data.broker_name || data.service || data.site || data.site_name || data.search_engine || (finding && finding.source) || 'Source';
+    }
+
+    function confidenceLabel(confidence) {
+      switch (String(confidence || '').toLowerCase()) {
+        case 'high':
+          return 'Confirmed';
+        case 'medium':
+          return 'Likely';
+        default:
+          return 'Unverified';
+      }
+    }
+
+    function confidenceBadgeClass(confidence) {
+      switch (String(confidence || '').toLowerCase()) {
+        case 'high':
+          return 'badge-high';
+        case 'medium':
+          return 'badge-medium';
+        default:
+          return 'badge-low';
+      }
+    }
+
+    function joinUnique(values) {
+      var seen = new Set();
+      var out = [];
+      (values || []).forEach(function(value) {
+        var normalized = String(value || '').trim();
+        if (!normalized || seen.has(normalized)) return;
+        seen.add(normalized);
+        out.push(normalized);
+      });
+      return out;
+    }
+
+    function renderEvidenceLinks(item) {
+      var ids = Array.isArray(item.supporting_finding_ids) ? item.supporting_finding_ids : [];
+      if (!ids.length) {
+        var sources = joinUnique(item.supporting_sources || []);
+        if (!sources.length) return '';
+        return '<details class="evidence-details"><summary>Evidence Used</summary><div class="evidence-details-body"><div class="conclusion-evidence">' + escHtml(sources.join(', ')) + '</div></div></details>';
+      }
+
+      var links = ids.map(function(findingId) {
+        var finding = getFindingById(findingId);
+        if (!finding) {
+          return '<span class="evidence-link">[' + escHtml(findingId) + ']</span>';
+        }
+        var label = '[' + findingId + '] ' + getFindingDisplaySource(finding);
+        var html = '<a class="evidence-link" href="#finding-' + escHtml(findingId) + '">' + escHtml(label) + '</a>';
+        if (finding.source_url && isHttpUrl(finding.source_url)) {
+          html += '<a class="evidence-link evidence-source-link" href="' + escHtml(finding.source_url) + '" target="_blank" rel="noopener noreferrer">Source</a>';
+        }
+        return html;
+      });
+
+      return '<details class="evidence-details"><summary>Evidence Used</summary><div class="evidence-details-body"><div class="evidence-links">' + links.join('') + '</div></div></details>';
+    }
+
+    function renderConclusionMeta(item) {
+      if (!item || typeof item !== 'object') return '';
+      var html = '';
+      var badges = [];
+      var confidence = String(item.confidence || '').toLowerCase();
+      if (confidence) {
+        badges.push('<span class="conclusion-badge ' + confidenceBadgeClass(confidence) + '">' + escHtml(confidenceLabel(confidence)) + '</span>');
+      }
+      if (item.human_review_required) {
+        badges.push('<span class="conclusion-badge badge-review">Human Review Required</span>');
+      }
+      if (item.rule_id) {
+        badges.push('<span class="conclusion-badge">' + escHtml(item.rule_id) + '</span>');
+      }
+      if (badges.length) {
+        html += '<div class="conclusion-badges">' + badges.join('') + '</div>';
+      }
+      if (item.reason) {
+        html += '<div class="conclusion-why"><strong>Why this appears:</strong> ' + escHtml(item.reason) + '</div>';
+      }
+      var showOfficialUrl = item.official_url && !(item.complaint_portal && item.complaint_portal.url === item.official_url);
+      if (showOfficialUrl) {
+        html += '<div class="conclusion-rule"><strong>Official rule/source:</strong> <a class="action-link" href="' + escHtml(item.official_url) + '" target="_blank" rel="noopener noreferrer">Open official source</a></div>';
+      }
+      if (item.uncertainty_note) {
+        html += '<div class="conclusion-uncertainty"><strong>Uncertainty:</strong> ' + escHtml(item.uncertainty_note) + '</div>';
+      }
+      html += renderEvidenceLinks(item);
+      return html;
+    }
+
+    function renderDecisionSummary(items) {
+      var container = document.getElementById('decisionSummaryList');
+      container.innerHTML = '';
+
+      if (!Array.isArray(items) || !items.length) {
+        container.innerHTML = '<div class="optout-text-card">No decision summary was generated for this scan.</div>';
+        return;
+      }
+
+      items.forEach(function(item) {
+        var html = '<div class="decision-card">';
+        html += '<div class="decision-title">' + escHtml(item.title || 'Decision') + '</div>';
+        if (item.summary) {
+          html += '<div class="decision-summary">' + escHtml(item.summary) + '</div>';
+        }
+        html += renderConclusionMeta(item);
+        html += '</div>';
+        container.innerHTML += html;
+      });
+    }
+
+    function renderSafetyBoundaries(boundaries) {
+      var container = document.getElementById('safetyBoundariesList');
+      container.innerHTML = '';
+
+      if (!Array.isArray(boundaries) || !boundaries.length) {
+        container.innerHTML = '<div class="optout-text-card">No safety boundaries were attached to this report.</div>';
+        return;
+      }
+
+      boundaries.forEach(function(boundary) {
+        var html = '<div class="safety-card">';
+        html += '<div class="safety-title">' + escHtml(boundary.title || 'Boundary') + '</div>';
+        if (boundary.will_do) {
+          html += '<div class="safety-copy"><strong>Leakipedia will:</strong> ' + escHtml(boundary.will_do) + '</div>';
+        }
+        if (boundary.will_not_do) {
+          html += '<div class="safety-copy"><strong>Leakipedia will not:</strong> ' + escHtml(boundary.will_not_do) + '</div>';
+        }
+        if (boundary.details) {
+          html += '<div class="safety-copy">' + escHtml(boundary.details) + '</div>';
+        }
+        html += '</div>';
+        container.innerHTML += html;
+      });
+    }
+
+    function downloadTextFile(filename, text, contentType) {
+      var blob = new Blob([text], { type: contentType || 'text/plain;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+    }
+
+    function buildEvidencePacket(report) {
+      var lines = [];
+      lines.push('# Leakipedia Evidence Packet');
+      lines.push('');
+      lines.push('- Scan ID: ' + (report.scan_id || 'unknown'));
+      lines.push('- Exposure Score: ' + String(report.exposure_score || 0) + '/100');
+      lines.push('- Risk Band: ' + titleCase(((report.score_breakdown || {}).label) || 'unknown'));
+      lines.push('');
+
+      lines.push('## Decision Summary');
+      (report.decision_summary || []).forEach(function(item) {
+        lines.push('');
+        lines.push('### ' + (item.title || 'Decision'));
+        if (item.summary) lines.push(item.summary);
+        if (item.reason) lines.push('Why this appears: ' + item.reason);
+        if (item.confidence) lines.push('Confidence: ' + confidenceLabel(item.confidence));
+        if (item.uncertainty_note) lines.push('Uncertainty: ' + item.uncertainty_note);
+        if (Array.isArray(item.supporting_finding_ids) && item.supporting_finding_ids.length) {
+          lines.push('Evidence IDs: ' + item.supporting_finding_ids.join(', '));
+        }
+      });
+
+      lines.push('');
+      lines.push('## Findings');
+      (report.findings || []).forEach(function(finding) {
+        lines.push('');
+        lines.push('### [' + (finding.finding_id || '?') + '] ' + getFindingDisplaySource(finding));
+        lines.push('- Type: ' + (finding.finding_type || 'unknown'));
+        lines.push('- Severity: ' + (finding.severity || 'unknown'));
+        lines.push('- Confidence: ' + confidenceLabel(finding.confidence));
+        if (finding.source_url) lines.push('- Source URL: ' + finding.source_url);
+      });
+
+      lines.push('');
+      lines.push('## Applicable Laws');
+      (report.applicable_laws || []).forEach(function(law) {
+        lines.push('');
+        lines.push('### ' + (law.law || 'Law'));
+        if (law.reason) lines.push('Why this appears: ' + law.reason);
+        if (law.complaint_portal && law.complaint_portal.url) {
+          lines.push('Complaint portal: ' + law.complaint_portal.url);
+        }
+        if (law.complaint_template) {
+          lines.push('');
+          lines.push('Complaint template:');
+          lines.push(law.complaint_template);
+        }
+        if (Array.isArray(law.supporting_finding_ids) && law.supporting_finding_ids.length) {
+          lines.push('Evidence IDs: ' + law.supporting_finding_ids.join(', '));
+        }
+      });
+
+      lines.push('');
+      lines.push('## Remediation Actions');
+      (report.actions || []).forEach(function(action) {
+        lines.push('');
+        lines.push('### ' + (action.action || 'Action'));
+        if (action.reason) lines.push('Why this appears: ' + action.reason);
+        if (Array.isArray(action.supporting_finding_ids) && action.supporting_finding_ids.length) {
+          lines.push('Evidence IDs: ' + action.supporting_finding_ids.join(', '));
+        }
+      });
+
+      lines.push('');
+      lines.push('## Safety & Boundaries');
+      (report.safety_boundaries || []).forEach(function(boundary) {
+        lines.push('');
+        lines.push('### ' + (boundary.title || 'Boundary'));
+        if (boundary.will_do) lines.push('Leakipedia will: ' + boundary.will_do);
+        if (boundary.will_not_do) lines.push('Leakipedia will not: ' + boundary.will_not_do);
+        if (boundary.details) lines.push(boundary.details);
+      });
+
+      return lines.join('\n');
     }
 
     function renderScoreBreakdown(report) {
@@ -1043,6 +1506,193 @@
       return inferred ? inferred.optOutUrl : null;
     }
 
+    function isSevereFinding(finding) {
+      return severityRank(finding && finding.severity) >= 3;
+    }
+
+    function pushFindingDetail(details, label, value) {
+      if (value === undefined || value === null) return;
+      if (Array.isArray(value) && value.length === 0) return;
+      if (typeof value === 'string' && value.trim() === '') return;
+
+      var normalized = value;
+      if (Array.isArray(value)) {
+        normalized = value.slice(0, 6).join(', ');
+      } else if (typeof value === 'boolean') {
+        normalized = value ? 'Yes' : 'No';
+      } else if (typeof value === 'object') {
+        normalized = JSON.stringify(value);
+      }
+
+      details.push({ label: label, value: String(normalized) });
+    }
+
+    function summarizeBreachDirectoryRecord(record) {
+      if (!record || typeof record !== 'object') return '';
+      var keys = ['email', 'username', 'ip', 'phone', 'name', 'line'];
+      var parts = [];
+      keys.forEach(function(key) {
+        if (record[key]) {
+          parts.push(key + ': ' + record[key]);
+        }
+      });
+      return parts.slice(0, 3).join(' · ');
+    }
+
+    function getFindingSummary(finding) {
+      var data = finding.data || {};
+
+      if (finding.source === 'paste_search' && data.search_engine === 'intelx_phonebook') {
+        return 'IntelX matched a leaked selector tied to this query: ' + (data.type || 'identifier') + ' "' + (data.value || 'unknown') + '".';
+      }
+
+      if (finding.source === 'paste_search' && data.search_engine === 'intelx') {
+        var intelxLabel = data.name || data.media_type || 'indexed record';
+        var intelxBucket = data.bucket ? ' in ' + data.bucket : '';
+        return 'IntelX indexed a high-risk record' + intelxBucket + ': ' + intelxLabel + '.';
+      }
+
+      if (finding.source === 'paste_search' && data.search_engine === 'psbdmp') {
+        return 'A paste-dump search engine found this query inside a public paste record.';
+      }
+
+      if (finding.source === 'leakcheck' && data.service === 'BreachDirectory') {
+        return 'BreachDirectory found ' + (data.has_password ? 'password-related ' : '') + 'exposure in ' + (data.breach_source || 'a breach source') + '.';
+      }
+
+      if (finding.source === 'leakcheck') {
+        if (data.credentials_leaked) {
+          return 'Email reputation data indicates leaked credentials tied to this address.';
+        }
+        if (data.data_breach) {
+          return 'Email reputation data indicates this address appeared in a known data breach.';
+        }
+      }
+
+      if (finding.finding_type === 'breach') {
+        var breachName = data.breach_name || data.breach_source || finding.source;
+        var classes = Array.isArray(data.data_classes) ? data.data_classes.slice(0, 3).join(', ') : '';
+        return breachName + (classes ? ' exposed ' + classes + '.' : ' is associated with exposed personal data.');
+      }
+
+      if (finding.finding_type === 'leaked_credential') {
+        return 'This source found leaked credential or dump-related data connected to your input.';
+      }
+
+      if (finding.finding_type === 'data_broker_listing') {
+        var broker = data.broker_name || finding.source;
+        var status = data.verification_status ? ' (' + data.verification_status + ')' : '';
+        return broker + ' appears to expose your personal data' + status + '.';
+      }
+
+      if (finding.finding_type === 'document') {
+        if (data.has_gps) {
+          return 'A public document or image appears to include location metadata.';
+        }
+        return 'A public document or indexed file appears tied to your identity.';
+      }
+
+      if (finding.finding_type === 'account_exists') {
+        return 'This source indicates an account or public profile is linked to your input.';
+      }
+
+      return 'This finding represents a meaningful exposure signal that deserves review.';
+    }
+
+    function getFindingDetails(finding) {
+      var data = finding.data || {};
+      var details = [];
+
+      if (finding.source === 'paste_search' && data.search_engine === 'intelx_phonebook') {
+        pushFindingDetail(details, 'Matched value', data.value);
+        pushFindingDetail(details, 'Selector type', data.type);
+        pushFindingDetail(details, 'Search engine', 'IntelX phonebook');
+        return details;
+      }
+
+      if (finding.source === 'paste_search' && data.search_engine === 'intelx') {
+        pushFindingDetail(details, 'Record name', data.name);
+        pushFindingDetail(details, 'Bucket', data.bucket);
+        pushFindingDetail(details, 'Media type', data.media_type);
+        pushFindingDetail(details, 'Indexed source', data.source);
+        pushFindingDetail(details, 'Indexed date', data.date);
+        return details;
+      }
+
+      if (finding.source === 'paste_search' && data.search_engine === 'psbdmp') {
+        pushFindingDetail(details, 'Paste ID', data.paste_id);
+        pushFindingDetail(details, 'Paste time', data.paste_time);
+        pushFindingDetail(details, 'Tags', data.tags);
+        return details;
+      }
+
+      if (finding.source === 'leakcheck' && data.service === 'BreachDirectory') {
+        pushFindingDetail(details, 'Source', data.breach_source || data.service);
+        pushFindingDetail(details, 'Password-related', data.has_password);
+        pushFindingDetail(details, 'Matched fields', summarizeBreachDirectoryRecord(data.result));
+        return details;
+      }
+
+      if (finding.source === 'leakcheck') {
+        pushFindingDetail(details, 'Reputation', data.reputation);
+        pushFindingDetail(details, 'Credentials leaked', data.credentials_leaked);
+        pushFindingDetail(details, 'Data breach', data.data_breach);
+        pushFindingDetail(details, 'Malicious activity', data.malicious_activity);
+        pushFindingDetail(details, 'Profiles found', Array.isArray(data.profiles_found) ? data.profiles_found.length : '');
+        return details;
+      }
+
+      if (finding.finding_type === 'breach') {
+        pushFindingDetail(details, 'Breach', data.breach_name || data.breach_source);
+        pushFindingDetail(details, 'Breach date', data.breach_date);
+        pushFindingDetail(details, 'Data classes', data.data_classes);
+        pushFindingDetail(details, 'Pwn count', data.pwn_count);
+        return details;
+      }
+
+      if (finding.finding_type === 'data_broker_listing') {
+        pushFindingDetail(details, 'Broker', data.broker_name);
+        pushFindingDetail(details, 'Verification', data.verification_status);
+        pushFindingDetail(details, 'Data types', data.data_types_exposed || data.data_types);
+        pushFindingDetail(details, 'Description', data.description);
+        return details;
+      }
+
+      if (finding.finding_type === 'document') {
+        pushFindingDetail(details, 'Title', data.title);
+        pushFindingDetail(details, 'Snippet', data.snippet);
+        pushFindingDetail(details, 'MIME type', data.mime_type);
+        pushFindingDetail(details, 'GPS metadata', data.has_gps);
+        return details;
+      }
+
+      if (finding.finding_type === 'account_exists') {
+        pushFindingDetail(details, 'Site', data.site);
+        pushFindingDetail(details, 'Username', data.username);
+        pushFindingDetail(details, 'Display name', data.display_name);
+        pushFindingDetail(details, 'Bio', data.bio);
+        return details;
+      }
+
+      Object.keys(data).slice(0, 6).forEach(function(key) {
+        pushFindingDetail(details, titleCase(key), data[key]);
+      });
+      return details;
+    }
+
+    function renderFindingDetails(details) {
+      if (!details.length) return '';
+      var html = '<div class="finding-evidence">';
+      details.forEach(function(detail) {
+        html += '<div class="finding-evidence-row">';
+        html += '<div class="finding-evidence-label">' + escHtml(detail.label) + '</div>';
+        html += '<div class="finding-evidence-value">' + escHtml(detail.value) + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+      return html;
+    }
+
     function severityRank(severity) {
       switch ((severity || '').toLowerCase()) {
         case 'critical': return 4;
@@ -1069,17 +1719,35 @@
         .forEach(function(finding) {
           var div = document.createElement('div');
           div.className = 'finding-entry';
+          if (finding.finding_id) {
+            div.id = 'finding-' + finding.finding_id;
+          }
 
           var sevClass = 'severity-' + finding.severity;
           var optOutUrl = getOptOutUrl(finding);
           var data = finding.data || {};
           var displayName = data.broker_name || data.site_name || data.service || finding.source;
+          var severe = isSevereFinding(finding);
+          var summary = getFindingSummary(finding);
+          var detailRows = getFindingDetails(finding);
+          if (severe) {
+            div.className += ' finding-severe';
+            if ((finding.severity || '').toLowerCase() === 'critical') {
+              div.className += ' finding-critical';
+            }
+          }
 
           var html = '<span class="finding-source">[' + escHtml(displayName) + ']</span> ';
           html += '<span class="' + sevClass + '">' + escHtml(String(finding.severity || '').toUpperCase()) + '</span> ';
           html += '\u2014 ' + escHtml(finding.finding_type);
           if (finding.finding_id) {
             html += '<div class="finding-detail">ID ' + escHtml(finding.finding_id) + ' \u00b7 ' + escHtml(finding.confidence || 'unknown') + ' confidence</div>';
+          }
+          if (summary) {
+            html += '<div class="finding-summary">' + escHtml(summary) + '</div>';
+          }
+          if (severe && detailRows.length) {
+            html += renderFindingDetails(detailRows);
           }
 
           var buttons = '';
@@ -1098,6 +1766,9 @@
               return escHtml(lead);
             });
             html += '<div class="audit-leads">\u2192 ' + renderedLeads.join(', ') + '</div>';
+          }
+          if (severe && Object.keys(data).length > 0) {
+            html += '<details class="finding-more"><summary>Show source details</summary><pre>' + escHtml(JSON.stringify(data, null, 2)) + '</pre></details>';
           }
 
           div.innerHTML = html;
@@ -1201,17 +1872,22 @@
       handleCopyTemplate(button, lastReportJson || '');
     }
 
+    function handleDownloadEvidencePacket() {
+      if (!lastEvidencePacket) return;
+      downloadTextFile(
+        (currentScanId ? 'leakipedia-evidence-packet-' + currentScanId : 'leakipedia-evidence-packet') + '.md',
+        lastEvidencePacket,
+        'text/markdown;charset=utf-8'
+      );
+    }
+
     function handleDownloadJson() {
       if (!lastReportJson) return;
-      var blob = new Blob([lastReportJson], { type: 'application/json' });
-      var url = URL.createObjectURL(blob);
-      var anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = (currentScanId ? 'leakipedia-report-' + currentScanId : 'leakipedia-report') + '.json';
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      URL.revokeObjectURL(url);
+      downloadTextFile(
+        (currentScanId ? 'leakipedia-report-' + currentScanId : 'leakipedia-report') + '.json',
+        lastReportJson,
+        'application/json'
+      );
     }
 
     function renderPrivacyResources(resources) {
@@ -1235,9 +1911,7 @@
         if (resource.blurb) {
           html += '<div class="optout-resource-note">' + escHtml(resource.blurb) + '</div>';
         }
-        if (resource.reason) {
-          html += '<div class="optout-resource-note">Why it matters here: ' + escHtml(resource.reason) + '</div>';
-        }
+        html += renderConclusionMeta(resource);
         if (Array.isArray(resource.links) && resource.links.length) {
           html += '<div class="optout-inline-links">';
           resource.links.forEach(function(link) {
@@ -1292,6 +1966,8 @@
       else if (score >= 25) scoreClass = 'score-med';
       scoreEl.innerHTML = '<span class="' + scoreClass + '">' + score + '</span><span class="score-label">/100 EXPOSURE RISK</span>';
       renderScoreBreakdown(report);
+      renderDecisionSummary(report.decision_summary || []);
+      renderSafetyBoundaries(report.safety_boundaries || []);
 
       var chainsEl = document.getElementById('killChains');
       chainsEl.innerHTML = '';
@@ -1303,6 +1979,7 @@
         if (chain.likelihood) {
           html += '<div style="color:#666;font-size:11px;margin-top:4px">Likelihood: ' + chain.likelihood + ' | Impact: ' + (chain.impact || 'unknown') + '</div>';
         }
+        html += renderConclusionMeta(chain);
         html += '</div>';
         chainsEl.innerHTML += html;
       });
@@ -1319,6 +1996,7 @@
         if (action.category || action.effort) {
           html += '<div class="action-meta">' + escHtml(action.category || '') + ' \u00b7 ' + escHtml(action.effort || '') + '</div>';
         }
+        html += renderConclusionMeta(action);
         if (Array.isArray(action.links) && action.links.length > 0) {
           html += '<div class="action-links">';
           action.links.forEach(function(link) {
@@ -1338,9 +2016,23 @@
         var html = '<div class="action-item">';
         html += '<strong style="color:#6688cc">' + escHtml(law.law || '') + '</strong> (' + escHtml(law.jurisdiction || '') + ')';
         html += '<div class="action-meta">' + escHtml(law.relevance || '') + '</div>';
+        html += renderConclusionMeta(law);
         if (law.complaint_portal && law.complaint_portal.url) {
           html += '<div class="law-actions">';
           html += '<a class="action-link" href="' + escHtml(law.complaint_portal.url) + '" target="_blank" rel="noopener noreferrer">Open ' + escHtml(law.complaint_portal.label || 'Complaint Portal') + '</a>';
+          if (Array.isArray(law.links) && law.links.length) {
+            law.links.forEach(function(link) {
+              if (!link || !isHttpUrl(link.url)) return;
+              html += '<a class="action-link" href="' + escHtml(link.url) + '" target="_blank" rel="noopener noreferrer">' + escHtml(link.label || 'Official Resource') + '</a>';
+            });
+          }
+          html += '</div>';
+        } else if (Array.isArray(law.links) && law.links.length) {
+          html += '<div class="law-actions">';
+          law.links.forEach(function(link) {
+            if (!link || !isHttpUrl(link.url)) return;
+            html += '<a class="action-link" href="' + escHtml(link.url) + '" target="_blank" rel="noopener noreferrer">' + escHtml(link.label || 'Official Resource') + '</a>';
+          });
           html += '</div>';
         }
         if (law.user_rights) {
@@ -1375,8 +2067,13 @@
       optOutEl.innerHTML = renderPrivacyResources(report.privacy_resources || []);
 
       lastReportJson = JSON.stringify(report, null, 2);
+      lastEvidencePacket = buildEvidencePacket(report);
       document.getElementById('fullJson').textContent = lastReportJson;
 
+      var downloadEvidenceBtn = document.getElementById('downloadEvidenceBtn');
+      if (downloadEvidenceBtn) {
+        downloadEvidenceBtn.onclick = handleDownloadEvidencePacket;
+      }
       var copyJsonBtn = document.getElementById('copyJsonBtn');
       if (copyJsonBtn) {
         copyJsonBtn.onclick = handleCopyJson;
